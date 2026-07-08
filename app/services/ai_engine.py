@@ -24,6 +24,12 @@ except ImportError:
 
 from app.core.config import settings, PLATFORM_REGISTRY
 
+# Q-Empire Client Configuration - Hugging Face Models
+QEMPIRE_HF_MODEL = "mistralai/Mistral-7B-Instruct-v0.3"
+QEMPIRE_FALLBACK_MODEL = "HuggingFaceH4/zephyr-7b-beta"
+QEMPIRE_MODEL_CARD = "Qempireautomation/social-autopilot-ai"
+QEMPIRE_SPACE = "Qempireautomation/qempire-social-autopilot"
+
 
 @dataclass
 class GeneratedPost:
@@ -60,18 +66,28 @@ class QEmpireAIEngine:
         self._initialize_model()
 
     def _initialize_model(self):
-        """Initialize the Hugging Face model client."""
+        """Initialize the Hugging Face model client for Q-Empire clients."""
         if settings.HUGGINGFACE_API_TOKEN and HAS_HF_HUB:
             try:
                 self.client = InferenceClient(
                     token=settings.HUGGINGFACE_API_TOKEN
                 )
-                logger.info(f"✅ AI Engine initialized with model: {self.model_id}")
+                logger.info(f"✅ Q-Empire AI Engine initialized")
+                logger.info(f"   Model: {QEMPIRE_HF_MODEL}")
+                logger.info(f"   Model Card: {QEMPIRE_MODEL_CARD}")
+                logger.info(f"   HF Space: {QEMPIRE_SPACE}")
+            except Exception as e:
+                logger.warning(f"⚠️ Could not initialize HF client: {e}")
+                self.client = None
+        elif HAS_HF_HUB:
+            try:
+                self.client = InferenceClient()
+                logger.info("✅ Q-Empire AI Engine initialized (public model access)")
             except Exception as e:
                 logger.warning(f"⚠️ Could not initialize HF client: {e}")
                 self.client = None
         else:
-            logger.info("ℹ️ Running in demo mode (no HF token configured)")
+            logger.info("ℹ️ Running in template mode (install huggingface_hub for full AI)")
 
     async def generate_content_for_all_platforms(
         self,
@@ -224,7 +240,7 @@ Generate the post content now. Return ONLY the post text, nothing else."""
             try:
                 response = self.client.text_generation(
                     prompt,
-                    model="mistralai/Mistral-7B-Instruct-v0.3",
+                    model=QEMPIRE_HF_MODEL,
                     max_new_tokens=min(max_length, 1024),
                     temperature=settings.AI_MODEL_TEMPERATURE,
                     do_sample=True,
