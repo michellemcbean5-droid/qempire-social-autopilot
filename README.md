@@ -2,6 +2,11 @@
 
 **AI-Powered Social Media Marketing That Runs While You Sleep**
 
+[![CI](https://github.com/michellemcbean5-droid/qempire-social-autopilot/actions/workflows/ci.yml/badge.svg)](https://github.com/michellemcbean5-droid/qempire-social-autopilot/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Spaces-orange)](https://huggingface.co/spaces/qempire/social-autopilot)
+
 Q-Empire Social Autopilot is a fully autonomous AI-powered social media marketing platform that generates platform-optimized content and publishes to up to **25 different social media platforms** on a recurring schedule — completely on autopilot.
 
 ---
@@ -24,7 +29,7 @@ Q-Empire Social Autopilot is a fully autonomous AI-powered social media marketin
 │  │  Brand       │    │  Content         │    │  Post     │ │
 │  │  Profile     │    │  Optimizer       │    │  Queue    │ │
 │  │  Database    │    │  (Per-Platform)  │    │  Manager  │ │
-│  └──────────────┘    └──────────────────┘    └───────────┘ │
+│  └──────────────┘    └──────────────────┐    └───────────┘ │
 │                                                              │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │              AUTOPILOT SCHEDULER (CRON)               │   │
@@ -63,11 +68,19 @@ Q-Empire Social Autopilot is a fully autonomous AI-powered social media marketin
 | Database | SQLite (local) / PostgreSQL (production) |
 | Frontend | Gradio (Hugging Face Space) |
 | Platform APIs | Custom connector library for 25 platforms |
-| Deployment | Hugging Face Spaces + GitHub Actions |
+| Deployment | Hugging Face Spaces + GitHub Actions + Docker |
 
 ---
 
 ## 📦 Installation
+
+### Prerequisites
+
+- Python 3.11+
+- Docker (optional, for containerized deployment)
+- Redis (for background Celery workers)
+
+### Local Setup
 
 ```bash
 # Clone the repository
@@ -81,6 +94,7 @@ source venv/bin/activate  # Linux/Mac
 
 # Install dependencies
 pip install -r requirements.txt
+pip install -r requirements-dev.txt
 
 # Configure environment
 cp .env.example .env
@@ -89,6 +103,33 @@ cp .env.example .env
 # Run the application
 python -m app.main
 ```
+
+The API will be available at [http://localhost:8000](http://localhost:8000)
+
+- API Docs (Swagger UI): [http://localhost:8000/api/docs](http://localhost:8000/api/docs)
+- ReDoc: [http://localhost:8000/api/redoc](http://localhost:8000/api/redoc)
+
+### Docker (Recommended for Production)
+
+```bash
+# Build and run all services
+docker-compose up --build -d
+
+# View logs
+docker-compose logs -f app
+
+# Stop all services
+docker-compose down
+```
+
+Services started:
+- **FastAPI app** on port 8000
+- **Redis** on port 6379 (task queue)
+- **Celery worker** for background tasks
+
+### Hugging Face Space (Standalone UI)
+
+The `huggingface_space/` directory can be deployed directly as a Hugging Face Space for client demos. See [docs/deployment.md](docs/deployment.md) for details.
 
 ---
 
@@ -124,6 +165,8 @@ NOTIFICATION_EMAIL=your@email.com
 NOTIFICATION_WEBHOOK_URL=
 ```
 
+Get your Hugging Face token at [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+
 ---
 
 ## 🚀 Quick Start
@@ -132,6 +175,54 @@ NOTIFICATION_WEBHOOK_URL=
 2. **Connect your platforms** — Add credentials for up to 25 social media accounts
 3. **Enable Autopilot** — Toggle on and set your preferred schedule
 4. **Sleep** — The AI generates and posts content automatically
+
+### API Quick Start
+
+```bash
+# 1. Analyze website
+curl -X POST http://localhost:8000/api/onboarding/analyze-website \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://yourwebsite.com"}'
+
+# 2. Connect platforms
+curl -X POST http://localhost:8000/api/onboarding/connect-platforms \
+  -H "Content-Type: application/json" \
+  -d '{
+    "platforms": [
+      {"platform": "twitter", "credentials": {"api_key": "xxx"}},
+      {"platform": "facebook", "credentials": {"access_token": "xxx"}}
+    ]
+  }'
+
+# 3. Enable autopilot
+curl -X POST http://localhost:8000/api/autopilot/configure \
+  -H "Content-Type: application/json" \
+  -d '{
+    "enabled": true,
+    "frequency": "daily",
+    "time_utc": "09:00"
+  }'
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+pytest tests/ -v
+
+# Run with coverage report
+pytest tests/ -v --cov=app --cov=platforms --cov=models --cov-report=term
+
+# Run specific test file
+pytest tests/test_ai_engine.py -v
+
+# Run with async support
+pytest tests/ -v --asyncio-mode=auto
+```
+
+Coverage target: **≥ 80%**
 
 ---
 
@@ -201,17 +292,35 @@ qempire-social-autopilot/
 │   ├── app.py               # Gradio Space app
 │   ├── requirements.txt     # Space dependencies
 │   └── README.md            # Space README
+├── docs/
+│   ├── getting-started.md   # Installation & setup guide
+│   ├── architecture.md      # System architecture overview
+│   └── deployment.md        # Deployment guides
 ├── tests/
-│   ├── test_ai_engine.py
-│   ├── test_platforms.py
-│   └── test_scheduler.py
-├── .env.example
+│   ├── __init__.py
+│   ├── conftest.py          # Pytest fixtures
+│   ├── test_ai_engine.py    # AI engine tests
+│   ├── test_platforms.py    # Platform connector tests
+│   └── test_scheduler.py    # Scheduler tests
+├── .github/
+│   ├── workflows/
+│   │   └── ci.yml           # GitHub Actions CI pipeline
+│   ├── ISSUE_TEMPLATE/
+│   │   └── bug_report.md
+│   └── PULL_REQUEST_TEMPLATE.md
+├── .env.example             # Environment variables template
 ├── .gitignore
+├── AGENTS.md                # Agent/AI assistant context
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md          # Contribution guidelines
+├── LICENSE                  # MIT License
 ├── Dockerfile
 ├── docker-compose.yml
-├── requirements.txt
+├── env_example.txt          # Legacy env template (kept for compatibility)
+├── requirements.txt         # Production dependencies
+├── requirements-dev.txt     # Development dependencies
 ├── setup.py
-└── README.md
+└── README.md                # This file
 ```
 
 ---
@@ -228,6 +337,9 @@ The model is fine-tuned for social media content generation with platform-specif
 - Engagement optimization techniques
 - Brand voice consistency
 - Content variation generation
+
+**Primary inference model:** `mistralai/Mistral-7B-Instruct-v0.3`  
+**Fallback:** `HuggingFaceH4/zephyr-7b-beta`
 
 ---
 
@@ -269,6 +381,36 @@ The model is fine-tuned for social media content generation with platform-specif
 - API keys are never stored in plain text
 - OAuth2 flows used where available
 - Rate limiting per platform to avoid bans
+- `.env` and credential files are never committed to git
+
+---
+
+## 🤖 Automation & CI/CD
+
+This repository is fully automated:
+
+- **GitHub Actions CI** (`.github/workflows/ci.yml`):
+  - Python tests on 3.11 and 3.12
+  - Ruff linting and formatting checks
+  - MyPy type checking
+  - Docker build validation
+  - Security vulnerability scanning (Trivy)
+  - HuggingFace Space syntax validation
+- **Code Coverage** reporting via Codecov
+- **Issue Templates** for bug reports
+- **Pull Request Templates** with testing checklist
+
+---
+
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| [docs/getting-started.md](docs/getting-started.md) | Installation, setup, and quick start |
+| [docs/architecture.md](docs/architecture.md) | System architecture and data flow |
+| [docs/deployment.md](docs/deployment.md) | Deployment guides for Docker, HF Space, cloud |
+| [AGENTS.md](AGENTS.md) | Agent/AI assistant context for this project |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute to the project |
 
 ---
 
@@ -283,3 +425,8 @@ MIT License — Built by Q-Empire AI Automation Division
 - **GitHub:** [github.com/michellemcbean5-droid/qempire-social-autopilot](https://github.com/michellemcbean5-droid/qempire-social-autopilot)
 - **Hugging Face Space:** [huggingface.co/spaces/qempire/social-autopilot](https://huggingface.co/spaces/qempire/social-autopilot)
 - **Q-Empire Website:** [qempireai.com](https://qempireai.com)
+- **Support:** support@qempireai.com | (928) 490-0209
+
+---
+
+*Built by Q-Empire AI Automation Division | Exclusively for Q-Empire Automation Clients*
