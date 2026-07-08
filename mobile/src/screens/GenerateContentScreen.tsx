@@ -27,6 +27,7 @@ import { useSubscriptionStore } from '@/store/subscriptionStore';
 import { useNotificationStore } from '@/store/notificationStore';
 import { colors, spacing, borderRadius, shadows } from '@/constants/theme';
 import { PLATFORM_REGISTRY_MOBILE } from '@/constants/config';
+import { generateBatchContent } from '@/api/huggingface';
 import UpgradePrompt from '@/components/UpgradePrompt';
 
 export default function GenerateContentScreen() {
@@ -75,35 +76,49 @@ export default function GenerateContentScreen() {
 
     // Simulate generation progress
     const progressInterval = setInterval(() => {
-      setGenerating(true, Math.random() * 0.8);
+      setGenerating(true, Math.min(0.9, Math.random() * 0.8 + 0.1));
     }, 800);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 4000));
+      // Build platform specs for AI generation
+      const platformSpecs = selectedPlatforms.map(id => {
+        const registry = PLATFORM_REGISTRY_MOBILE[id as keyof typeof PLATFORM_REGISTRY_MOBILE];
+        return {
+          id,
+          name: registry?.name || id,
+          maxChars: registry?.maxChars || 500,
+        };
+      });
+
+      // Call AI API for real content generation
+      const aiResults = await generateBatchContent(
+        profile?.brandName || 'Q-Empire',
+        profile?.description || 'AI-powered social media automation',
+        profile?.tone || 'professional',
+        platformSpecs,
+        contentTheme || undefined
+      );
+
       clearInterval(progressInterval);
       setGenerating(true, 1);
 
-      // Generate mock posts
-      const posts = selectedPlatforms.map((platformId, index) => {
+      // Build posts from AI results
+      const posts = aiResults.map((result, index) => {
+        const platformId = result.platformId;
         const registry = PLATFORM_REGISTRY_MOBILE[platformId as keyof typeof PLATFORM_REGISTRY_MOBILE];
         const platform = platforms.find(p => p.id === platformId);
-        
-        const templates = [
-          `🚀 Exciting news from ${profile?.brandName || 'our brand'}! We're transforming how businesses approach ${contentTheme || 'growth'} with cutting-edge AI solutions. Ready to level up?`,
-          `💡 Did you know? ${profile?.brandName || 'We'} help businesses automate their success. Stop working harder — start working smarter with our innovative solutions.`,
-          `⚡ The future of ${contentTheme || 'business'} is here. ${profile?.brandName || 'Our brand'} delivers AI-powered solutions that work while you sleep. Join thousands who've already made the switch!`,
-          `🎯 ${profile?.brandName || 'Our brand'} — Where innovation meets execution. Our clients see 3x productivity gains in just 30 days. Your turn?`,
-        ];
 
-        const content = templates[index % templates.length];
-        const hashtags = ['#AI', '#Automation', '#BusinessGrowth', '#Innovation', '#Digital'].slice(0, registry?.hashtags || 5);
+        const content = result.content;
+        const hashtags = result.hashtags.length > 0
+          ? result.hashtags
+          : ['#AI', '#Automation', '#BusinessGrowth', '#Innovation', '#Digital'].slice(0, registry?.hashtags || 5);
 
         return {
           id: `post_${Date.now()}_${index}`,
           batchId: `batch_${Date.now()}`,
           platformId,
           platformName: registry?.name || platform?.name || platformId,
-          content: content.length > (registry?.maxChars || 500) 
+          content: content.length > (registry?.maxChars || 500)
             ? content.substring(0, (registry?.maxChars || 500) - 3) + '...'
             : content,
           hashtags,
@@ -117,19 +132,53 @@ export default function GenerateContentScreen() {
 
       setGeneratedPosts(posts);
       addPosts(posts);
-      
+
       addNotification({
         type: 'success',
-        title: 'Content Generated',
-        message: `Successfully generated ${posts.length} posts for ${selectedPlatforms.length} platforms.`,
+        title: 'AI Content Generated',
+        message: `Successfully generated ${posts.length} posts using Mistral-7B AI for ${selectedPlatforms.length} platforms.`,
       });
     } catch (error) {
+      console.error('Content generation error:', error);
       addNotification({
         type: 'error',
         title: 'Generation Failed',
-        message: 'Failed to generate content. Please try again.',
+        message: 'AI generation failed. Falling back to template-based content.',
       });
+
+      // Fallback to template-based generation
+      const fallbackPosts = selectedPlatforms.map((platformId, index) => {
+        const registry = PLATFORM_REGISTRY_MOBILE[platformId as keyof typeof PLATFORM_REGISTRY_MOBILE];
+        const platform = platforms.find(p => p.id === platformId);
+        const templates = [
+          `🚀 Exciting news from ${profile?.brandName || 'our brand'}! We're transforming how businesses approach ${contentTheme || 'growth'} with cutting-edge AI solutions. Ready to level up?`,
+          `💡 Did you know? ${profile?.brandName || 'We'} help businesses automate their success. Stop working harder — start working smarter with our innovative solutions.`,
+          `⚡ The future of ${contentTheme || 'business'} is here. ${profile?.brandName || 'Our brand'} delivers AI-powered solutions that work while you sleep. Join thousands who've already made the switch!`,
+          `🎯 ${profile?.brandName || 'Our brand'} — Where innovation meets execution. Our clients see 3x productivity gains in just 30 days. Your turn?`,
+        ];
+        const content = templates[index % templates.length];
+        const hashtags = ['#AI', '#Automation', '#BusinessGrowth', '#Innovation', '#Digital'].slice(0, registry?.hashtags || 5);
+        return {
+          id: `post_${Date.now()}_${index}`,
+          batchId: `batch_${Date.now()}`,
+          platformId,
+          platformName: registry?.name || platform?.name || platformId,
+          content: content.length > (registry?.maxChars || 500)
+            ? content.substring(0, (registry?.maxChars || 500) - 3) + '...'
+            : content,
+          hashtags,
+          characterCount: content.length,
+          engagementScore: 0.7 + Math.random() * 0.25,
+          status: 'draft' as const,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+      });
+
+      setGeneratedPosts(fallbackPosts);
+      addPosts(fallbackPosts);
     } finally {
+      clearInterval(progressInterval);
       setGenerating(false, 0);
     }
   };

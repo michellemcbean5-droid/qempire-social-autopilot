@@ -1,0 +1,138 @@
+# This file contains the fastlane.tools configuration
+# for the Q-Empire Social Autopilot mobile app.
+#
+# For more info: https://docs.fastlane.tools
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Build and upload to TestFlight (Beta)"
+  lane :beta do
+    # Increment build number
+    increment_build_number(xcodeproj: "ios/QEmpireSocialAutopilot.xcodeproj")
+    
+    # Build the app
+    build_app(
+      scheme: "QEmpireSocialAutopilot",
+      workspace: "ios/QEmpireSocialAutopilot.xcworkspace",
+      include_bitcode: false,
+      export_method: "app-store"
+    )
+    
+    # Upload to TestFlight
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true,
+      notify_external_testers: false
+    )
+    
+    # Send notification
+    slack(
+      message: "Q-Empire iOS Beta #{lane_context[SharedValues::BUILD_NUMBER]} uploaded to TestFlight!",
+      success: true
+    )
+  end
+
+  desc "Build and upload to App Store (Production)"
+  lane :release do
+    # Ensure git is clean
+    ensure_git_status_clean
+    
+    # Increment version and build
+    increment_version_number(xcodeproj: "ios/QEmpireSocialAutopilot.xcodeproj")
+    increment_build_number(xcodeproj: "ios/QEmpireSocialAutopilot.xcodeproj")
+    
+    # Build
+    build_app(
+      scheme: "QEmpireSocialAutopilot",
+      workspace: "ios/QEmpireSocialAutopilot.xcworkspace",
+      include_bitcode: false,
+      export_method: "app-store"
+    )
+    
+    # Upload
+    upload_to_app_store(
+      force: true,
+      skip_metadata: false,
+      skip_screenshots: false,
+      submit_for_review: true,
+      automatic_release: false,
+      precheck_include_in_app_purchases: true
+    )
+    
+    # Tag release
+    add_git_tag(tag: "ios-v#{lane_context[SharedValues::VERSION_NUMBER]}")
+    push_git_tags
+    
+    slack(
+      message: "Q-Empire iOS v#{lane_context[SharedValues::VERSION_NUMBER]} submitted for App Store review!",
+      success: true
+    )
+  end
+
+  desc "Run tests"
+  lane :test do
+    scan(
+      scheme: "QEmpireSocialAutopilot",
+      workspace: "ios/QEmpireSocialAutopilot.xcworkspace",
+      clean: true
+    )
+  end
+end
+
+platform :android do
+  desc "Build and upload to Internal Testing (Beta)"
+  lane :beta do
+    # Build AAB
+    gradle(
+      task: "bundle",
+      build_type: "Release",
+      project_dir: "android/"
+    )
+    
+    # Upload to Play Console Internal Testing
+    upload_to_play_store(
+      track: "internal",
+      release_status: "draft",
+      aab: "android/app/build/outputs/bundle/release/app-release.aab"
+    )
+    
+    slack(
+      message: "Q-Empire Android Beta uploaded to Play Console Internal Testing!",
+      success: true
+    )
+  end
+
+  desc "Build and upload to Production"
+  lane :release do
+    ensure_git_status_clean
+    
+    # Build AAB
+    gradle(
+      task: "bundle",
+      build_type: "Release",
+      project_dir: "android/"
+    )
+    
+    # Upload to Production
+    upload_to_play_store(
+      track: "production",
+      release_status: "completed",
+      aab: "android/app/build/outputs/bundle/release/app-release.aab"
+    )
+    
+    # Tag release
+    version = get_version_name(gradle_file: "android/app/build.gradle")
+    add_git_tag(tag: "android-v#{version}")
+    push_git_tags
+    
+    slack(
+      message: "Q-Empire Android v#{version} released to Google Play!",
+      success: true
+    )
+  end
+
+  desc "Run tests"
+  lane :test do
+    gradle(task: "test", project_dir: "android/")
+  end
+end

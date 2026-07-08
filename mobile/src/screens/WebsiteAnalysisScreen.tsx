@@ -27,6 +27,7 @@ import { useSubscriptionStore } from '@/store/subscriptionStore';
 import { useNotificationStore } from '@/store/notificationStore';
 import { colors, spacing, borderRadius, shadows } from '@/constants/theme';
 import UpgradePrompt from '@/components/UpgradePrompt';
+import { analyzeWebsite, isValidURL } from '@/api/websiteAnalyzer';
 
 export default function WebsiteAnalysisScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -42,8 +43,7 @@ export default function WebsiteAnalysisScreen() {
   const limits = getLimits();
 
   const validateUrl = (url: string) => {
-    const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
-    return urlPattern.test(url);
+    return isValidURL(url);
   };
 
   const handleAnalyze = async () => {
@@ -80,47 +80,42 @@ export default function WebsiteAnalysisScreen() {
     }, 500);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      // Call real AI website analyzer
+      const result = await analyzeWebsite(analysisUrl);
       clearInterval(progressInterval);
       setAnalysisProgress(1);
 
-      // Generate mock brand profile
-      const domain = new URL(analysisUrl).hostname.replace('www.', '').split('.')[0];
-      const brandProfile = {
-        url: analysisUrl,
-        brandName: domain.charAt(0).toUpperCase() + domain.slice(1),
-        description: `AI-powered solutions for ${domain} customers. Transforming businesses with cutting-edge automation.`,
-        keywords: ['AI', 'Automation', 'Business Growth', 'Digital Marketing', 'Innovation'],
-        tone: 'professional',
-        productsServices: ['AI Chatbots', 'Marketing Automation', 'Social Media Management', 'Analytics Dashboard'],
-        targetAudience: 'Small to medium business owners',
-        contentThemes: ['technology', 'marketing', 'business_growth', 'ai_automation'],
-        colorScheme: ['#4169E1', '#BF00FF', '#00FFFF'],
-        socialLinks: [
-          { platform: 'facebook', url: `https://facebook.com/${domain}` },
-          { platform: 'twitter', url: `https://twitter.com/${domain}` },
-        ],
-        lastAnalyzed: new Date().toISOString(),
-      };
-
-      setProfile(brandProfile);
+      setProfile({
+        url: result.url,
+        brandName: result.brandName,
+        description: result.description,
+        keywords: result.keywords,
+        tone: result.tone,
+        productsServices: result.productsServices,
+        targetAudience: result.targetAudience,
+        contentThemes: result.contentThemes,
+        colorScheme: result.colorScheme,
+        socialLinks: result.socialLinks,
+        lastAnalyzed: result.lastAnalyzed,
+      });
       
       addNotification({
         type: 'success',
         title: 'Website Analysis Complete',
-        message: `Successfully analyzed ${brandProfile.brandName}. Your brand profile is ready for content generation.`,
+        message: `AI analyzed ${result.brandName}. Brand profile extracted using Mistral-7B.`,
       });
 
       navigation.goBack();
     } catch (error) {
-      setError('Failed to analyze website. Please try again.');
+      console.error('Website analysis error:', error);
+      setError('Failed to analyze website. Please check the URL and try again.');
       addNotification({
         type: 'error',
         title: 'Analysis Failed',
         message: 'Could not analyze the website. Please check the URL and try again.',
       });
     } finally {
+      clearInterval(progressInterval);
       setAnalyzing(false);
     }
   };

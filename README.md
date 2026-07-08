@@ -67,8 +67,103 @@ Q-Empire Social Autopilot is a fully autonomous AI-powered social media marketin
 | Task Scheduler | APScheduler + Celery |
 | Database | SQLite (local) / PostgreSQL (production) |
 | Frontend | Gradio (Hugging Face Space) |
+| **Mobile App** | **Expo SDK 52 + React Native + TypeScript** |
 | Platform APIs | Custom connector library for 25 platforms |
-| Deployment | Hugging Face Spaces + GitHub Actions + Docker |
+| Deployment | Hugging Face Spaces + GitHub Actions + Docker + EAS |
+
+---
+
+## 📱 Mobile App
+
+A complete cross-platform mobile app built with **Expo SDK 52** and **React Native**.
+
+### Features
+- 🤖 **AI Content Generation** — Powered by Mistral-7B via Hugging Face Inference API (free tier)
+- 🔍 **Website Analysis** — Enter any URL, AI extracts brand voice and profile
+- 📅 **Autopilot Mode** — Auto-schedule posts at optimal times
+- 📊 **Analytics Dashboard** — Track performance across all platforms
+- 🔗 **25 Platforms** — Connect and manage all major social networks
+- 💎 **4 Subscription Tiers** — Free, Basic ($19.99), Pro ($49.99), Elite ($199.99)
+- 🎟️ **Promo Codes** — Launch discounts, referral codes, master codes
+- 🔔 **Push Notifications** — Post success/failure alerts, autopilot updates
+- 🔗 **Deep Links** — `qempire://` URL scheme for seamless sharing
+
+### Mobile Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Expo SDK 52 |
+| Runtime | React Native 0.76 |
+| Language | TypeScript 5.3+ |
+| State | Zustand + AsyncStorage |
+| UI | React Native Paper |
+| Navigation | React Navigation v6 |
+| Charts | React Native Chart Kit |
+| AI API | Hugging Face Inference (free) |
+| Backend | FastAPI (Python) |
+
+### Mobile Setup
+
+```bash
+# Navigate to mobile directory
+cd mobile
+
+# Install dependencies
+npm install
+
+# Start development server
+npm start        # Metro bundler
+npm run ios      # iOS simulator
+npm run android  # Android emulator
+npm run web      # Web preview
+```
+
+### Build for Production
+
+```bash
+# Install EAS CLI
+npm install -g eas-cli
+
+# Login to Expo
+eas login
+
+# Build iOS (TestFlight)
+eas build --platform ios --profile preview
+
+# Build Android (Internal Testing)
+eas build --platform android --profile preview
+
+# Build for production stores
+eas build --platform ios --profile production
+eas build --platform android --profile production
+```
+
+### Mobile Project Structure
+
+```
+mobile/
+├── App.tsx                    # Entry point
+├── src/
+│   ├── api/
+│   │   ├── huggingface.ts     # AI content generation (Mistral-7B)
+│   │   └── websiteAnalyzer.ts # Website scraping + brand extraction
+│   ├── components/
+│   │   ├── ErrorBoundary.tsx  # Global error handling
+│   │   ├── SkeletonDashboard.tsx # Loading shimmer
+│   │   └── UpgradePrompt.tsx  # Subscription upsell
+│   ├── constants/
+│   │   ├── theme.ts           # Q-Empire brand colors
+│   │   └── config.ts          # API URLs, tiers, platform registry
+│   ├── navigation/
+│   │   └── index.tsx          # Stack + Tab navigator (18 screens)
+│   ├── screens/               # 18 full-featured screens
+│   ├── store/                 # 6 Zustand stores with persistence
+│   └── utils/
+│       ├── deepLinks.ts       # URL scheme handling
+│       └── notifications.ts   # Push notification setup
+```
+
+See [docs/mobile-architecture.md](docs/mobile-architecture.md) for full technical details.
 
 ---
 
@@ -295,7 +390,25 @@ qempire-social-autopilot/
 ├── docs/
 │   ├── getting-started.md   # Installation & setup guide
 │   ├── architecture.md      # System architecture overview
-│   └── deployment.md        # Deployment guides
+│   ├── deployment.md        # Deployment guides
+│   ├── mobile-architecture.md  # Mobile app technical docs
+│   ├── api-reference.md     # API contracts & data models
+│   ├── competitor-analysis.md  # Competitive intelligence
+│   ├── user-simulation.md   # 5 persona user journeys
+│   ├── store-deployment.md  # App Store / Play Store submission
+│   └── monetization.md      # Subscription tiers & revenue model
+├── mobile/
+│   ├── App.tsx              # Mobile app entry point
+│   ├── package.json         # Expo dependencies
+│   ├── src/
+│   │   ├── api/             # HuggingFace + website analyzer
+│   │   ├── components/      # Reusable UI components
+│   │   ├── constants/       # Theme, config, platform registry
+│   │   ├── navigation/      # Stack + tab navigator
+│   │   ├── screens/         # 18 feature screens
+│   │   ├── store/           # 6 Zustand stores
+│   │   └── utils/           # Deep links, notifications
+│   └── __tests__/           # Jest + RNTL test suite
 ├── tests/
 │   ├── __init__.py
 │   ├── conftest.py          # Pytest fixtures
@@ -304,10 +417,14 @@ qempire-social-autopilot/
 │   └── test_scheduler.py    # Scheduler tests
 ├── .github/
 │   ├── workflows/
-│   │   └── ci.yml           # GitHub Actions CI pipeline
+│   │   ├── ci.yml           # Python backend CI
+│   │   └── mobile-build.yml # Mobile EAS build CI/CD
 │   ├── ISSUE_TEMPLATE/
 │   │   └── bug_report.md
 │   └── PULL_REQUEST_TEMPLATE.md
+├── fastlane/
+│   ├── Fastfile             # iOS/Android deployment automation
+│   └── Appfile              # App identifiers
 ├── .env.example             # Environment variables template
 ├── .gitignore
 ├── AGENTS.md                # Agent/AI assistant context
@@ -396,9 +513,15 @@ This repository is fully automated:
   - Docker build validation
   - Security vulnerability scanning (Trivy)
   - HuggingFace Space syntax validation
+- **Mobile CI/CD** (`.github/workflows/mobile-build.yml`):
+  - TypeScript compilation checks
+  - Jest unit tests with coverage
+  - EAS build for iOS and Android
+  - Automated store submission on `[deploy]` commits
 - **Code Coverage** reporting via Codecov
 - **Issue Templates** for bug reports
 - **Pull Request Templates** with testing checklist
+- **Fastlane** automation for iOS TestFlight and Google Play Internal Testing
 
 ---
 
@@ -409,6 +532,12 @@ This repository is fully automated:
 | [docs/getting-started.md](docs/getting-started.md) | Installation, setup, and quick start |
 | [docs/architecture.md](docs/architecture.md) | System architecture and data flow |
 | [docs/deployment.md](docs/deployment.md) | Deployment guides for Docker, HF Space, cloud |
+| [docs/mobile-architecture.md](docs/mobile-architecture.md) | Mobile app architecture and technical details |
+| [docs/api-reference.md](docs/api-reference.md) | API contracts, data models, and SDK starter |
+| [docs/competitor-analysis.md](docs/competitor-analysis.md) | Competitive intelligence on 5 key competitors |
+| [docs/user-simulation.md](docs/user-simulation.md) | 5 persona user journeys with pain points and fixes |
+| [docs/store-deployment.md](docs/store-deployment.md) | Step-by-step App Store and Google Play submission |
+| [docs/monetization.md](docs/monetization.md) | Subscription tiers, promo codes, and revenue projections |
 | [AGENTS.md](AGENTS.md) | Agent/AI assistant context for this project |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute to the project |
 
