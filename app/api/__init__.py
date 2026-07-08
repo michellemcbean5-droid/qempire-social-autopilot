@@ -1,0 +1,1 @@
+"""Q-Empire API routes."""

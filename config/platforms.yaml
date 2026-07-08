@@ -1,0 +1,190 @@
+# Q-Empire Social Autopilot - Platform Configuration
+# Defines all 25 supported social media platforms
+
+platforms:
+  facebook:
+    name: "Facebook"
+    api_version: "v19.0"
+    base_url: "https://graph.facebook.com"
+    auth_type: "oauth2"
+    post_types: ["text", "image", "video", "link", "story"]
+    rate_limit: 200  # posts per hour
+    
+  instagram:
+    name: "Instagram"
+    api_version: "v19.0"
+    base_url: "https://graph.facebook.com"
+    auth_type: "oauth2"
+    post_types: ["image", "carousel", "reels", "story"]
+    rate_limit: 25
+    
+  twitter:
+    name: "X/Twitter"
+    api_version: "v2"
+    base_url: "https://api.twitter.com"
+    auth_type: "oauth2"
+    post_types: ["text", "image", "thread", "poll"]
+    rate_limit: 300
+    
+  linkedin:
+    name: "LinkedIn"
+    api_version: "v2"
+    base_url: "https://api.linkedin.com"
+    auth_type: "oauth2"
+    post_types: ["text", "article", "image", "video"]
+    rate_limit: 100
+    
+  tiktok:
+    name: "TikTok"
+    api_version: "v2"
+    base_url: "https://open.tiktokapis.com"
+    auth_type: "oauth2"
+    post_types: ["video", "photo"]
+    rate_limit: 50
+    
+  pinterest:
+    name: "Pinterest"
+    api_version: "v5"
+    base_url: "https://api.pinterest.com"
+    auth_type: "oauth2"
+    post_types: ["pin", "idea_pin"]
+    rate_limit: 100
+    
+  youtube:
+    name: "YouTube"
+    api_version: "v3"
+    base_url: "https://www.googleapis.com/youtube"
+    auth_type: "oauth2"
+    post_types: ["video", "short", "community_post"]
+    rate_limit: 50
+    
+  reddit:
+    name: "Reddit"
+    base_url: "https://oauth.reddit.com"
+    auth_type: "oauth2"
+    post_types: ["text", "link", "image", "poll"]
+    rate_limit: 60
+    
+  threads:
+    name: "Threads"
+    api_version: "v1"
+    base_url: "https://graph.threads.net"
+    auth_type: "oauth2"
+    post_types: ["text", "image", "carousel"]
+    rate_limit: 100
+    
+  tumblr:
+    name: "Tumblr"
+    api_version: "v2"
+    base_url: "https://api.tumblr.com"
+    auth_type: "oauth2"
+    post_types: ["text", "photo", "quote", "link", "video"]
+    rate_limit: 250
+    
+  medium:
+    name: "Medium"
+    api_version: "v1"
+    base_url: "https://api.medium.com"
+    auth_type: "bearer"
+    post_types: ["article"]
+    rate_limit: 30
+    
+  mastodon:
+    name: "Mastodon"
+    api_version: "v1"
+    auth_type: "oauth2"
+    post_types: ["toot", "image", "poll"]
+    rate_limit: 300
+    
+  discord:
+    name: "Discord"
+    api_version: "v10"
+    base_url: "https://discord.com/api"
+    auth_type: "bot_token"
+    post_types: ["message", "embed", "file"]
+    rate_limit: 50
+    
+  telegram:
+    name: "Telegram"
+    base_url: "https://api.telegram.org"
+    auth_type: "bot_token"
+    post_types: ["message", "photo", "video", "document"]
+    rate_limit: 30
+    
+  whatsapp:
+    name: "WhatsApp Business"
+    api_version: "v19.0"
+    base_url: "https://graph.facebook.com"
+    auth_type: "bearer"
+    post_types: ["message", "template", "status"]
+    rate_limit: 80
+    
+  snapchat:
+    name: "Snapchat"
+    base_url: "https://adsapi.snapchat.com"
+    auth_type: "oauth2"
+    post_types: ["story", "spotlight"]
+    rate_limit: 50
+    
+  bluesky:
+    name: "Bluesky"
+    base_url: "https://bsky.social/xrpc"
+    auth_type: "app_password"
+    post_types: ["post", "image", "quote"]
+    rate_limit: 300
+    
+  wordpress:
+    name: "WordPress"
+    auth_type: "application_password"
+    post_types: ["post", "page"]
+    rate_limit: 100
+    
+  blogger:
+    name: "Blogger"
+    api_version: "v3"
+    base_url: "https://www.googleapis.com/blogger"
+    auth_type: "oauth2"
+    post_types: ["post"]
+    rate_limit: 50
+    
+  mix:
+    name: "Mix"
+    auth_type: "oauth2"
+    post_types: ["share", "collection"]
+    rate_limit: 100
+    
+  quora:
+    name: "Quora"
+    auth_type: "bearer"
+    post_types: ["answer", "post"]
+    rate_limit: 30
+    
+  vk:
+    name: "VK"
+    api_version: "5.199"
+    base_url: "https://api.vk.com/method"
+    auth_type: "bearer"
+    post_types: ["post", "photo", "video"]
+    rate_limit: 100
+    
+  weibo:
+    name: "Weibo"
+    api_version: "2"
+    base_url: "https://api.weibo.com"
+    auth_type: "oauth2"
+    post_types: ["post", "photo"]
+    rate_limit: 100
+    
+  line:
+    name: "LINE"
+    base_url: "https://api.line.me"
+    auth_type: "bearer"
+    post_types: ["message", "broadcast", "timeline"]
+    rate_limit: 100
+    
+  kakao:
+    name: "KakaoTalk"
+    base_url: "https://kapi.kakao.com"
+    auth_type: "oauth2"
+    post_types: ["message", "story"]
+    rate_limit: 100

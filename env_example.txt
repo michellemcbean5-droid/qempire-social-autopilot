@@ -1,0 +1,130 @@
+# ============================================================
+# Q-EMPIRE SOCIAL AUTOPILOT - ENVIRONMENT CONFIGURATION
+# ============================================================
+# Copy this file to .env and fill in your values
+
+# --- Application Settings ---
+APP_NAME=Q-Empire Social Autopilot
+DEBUG=false
+SECRET_KEY=your-secret-key-change-in-production
+
+# --- AI Model (Hugging Face) ---
+HUGGINGFACE_API_TOKEN=hf_your_token_here
+MODEL_ID=qempire/social-autopilot-ai
+
+# --- Database ---
+DATABASE_URL=sqlite+aiosqlite:///./qempire_autopilot.db
+
+# --- Redis (for task queue) ---
+REDIS_URL=redis://localhost:6379/0
+
+# --- Autopilot Scheduling ---
+AUTOPILOT_ENABLED=true
+POSTING_SCHEDULE=daily
+POSTING_TIME_UTC=09:00
+
+# --- Notifications ---
+NOTIFICATION_EMAIL=your@email.com
+NOTIFICATION_WEBHOOK_URL=
+
+# ============================================================
+# PLATFORM CREDENTIALS (Add your login info for each platform)
+# ============================================================
+
+# --- Facebook ---
+FACEBOOK_ACCESS_TOKEN=
+FACEBOOK_PAGE_ID=
+
+# --- Instagram ---
+INSTAGRAM_ACCESS_TOKEN=
+INSTAGRAM_BUSINESS_ID=
+
+# --- X/Twitter ---
+TWITTER_API_KEY=
+TWITTER_API_SECRET=
+TWITTER_ACCESS_TOKEN=
+TWITTER_ACCESS_SECRET=
+
+# --- LinkedIn ---
+LINKEDIN_ACCESS_TOKEN=
+LINKEDIN_ORGANIZATION_ID=
+
+# --- TikTok ---
+TIKTOK_ACCESS_TOKEN=
+TIKTOK_OPEN_ID=
+
+# --- Pinterest ---
+PINTEREST_ACCESS_TOKEN=
+PINTEREST_BOARD_ID=
+
+# --- YouTube ---
+YOUTUBE_API_KEY=
+YOUTUBE_CHANNEL_ID=
+
+# --- Reddit ---
+REDDIT_CLIENT_ID=
+REDDIT_CLIENT_SECRET=
+REDDIT_USERNAME=
+REDDIT_PASSWORD=
+
+# --- Threads ---
+THREADS_ACCESS_TOKEN=
+
+# --- Tumblr ---
+TUMBLR_API_KEY=
+TUMBLR_API_SECRET=
+TUMBLR_BLOG_NAME=
+
+# --- Medium ---
+MEDIUM_ACCESS_TOKEN=
+
+# --- Mastodon ---
+MASTODON_ACCESS_TOKEN=
+MASTODON_INSTANCE_URL=
+
+# --- Discord ---
+DISCORD_BOT_TOKEN=
+DISCORD_CHANNEL_ID=
+
+# --- Telegram ---
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHANNEL_ID=
+
+# --- WhatsApp Business ---
+WHATSAPP_ACCESS_TOKEN=
+WHATSAPP_PHONE_ID=
+
+# --- Snapchat ---
+SNAPCHAT_ACCESS_TOKEN=
+
+# --- Bluesky ---
+BLUESKY_HANDLE=
+BLUESKY_APP_PASSWORD=
+
+# --- WordPress ---
+WORDPRESS_URL=
+WORDPRESS_USERNAME=
+WORDPRESS_APP_PASSWORD=
+
+# --- Blogger ---
+BLOGGER_API_KEY=
+BLOGGER_BLOG_ID=
+
+# --- Mix ---
+MIX_ACCESS_TOKEN=
+
+# --- Quora ---
+QUORA_ACCESS_TOKEN=
+
+# --- VK ---
+VK_ACCESS_TOKEN=
+VK_GROUP_ID=
+
+# --- Weibo ---
+WEIBO_ACCESS_TOKEN=
+
+# --- LINE ---
+LINE_CHANNEL_TOKEN=
+
+# --- KakaoTalk ---
+KAKAO_ACCESS_TOKEN=
