@@ -1,3 +1,40 @@
+## [1.0.0] - 2025-01-15
+
+### 🚀 Initial Release
+
+#### Added
+- Complete FastAPI backend with 25 platform connectors
+- React Native mobile app (Expo SDK 52) with 18 screens
+- AI content generation via Hugging Face Mistral-7B
+- Website brand analysis and voice extraction
+- Autopilot scheduler with cron support
+- 4-tier subscription system (Free/Basic/Pro/Elite)
+- Promo code and referral system
+- Analytics dashboard with platform breakdown
+- Push notifications for post success/failure
+- Deep link support (`qempire://`)
+- Gradio Hugging Face Space demo
+- Docker + docker-compose deployment
+- GitHub Actions CI/CD
+- Fastlane store deployment automation
+- Production health check endpoints (/api/health)
+- Animated splash screen with gradient and pulse
+- App Store & Play Store submission documentation
+
+#### Fixed
+- Mobile App.tsx empty render bug — now has full provider tree
+- Navigation Stack/Tab broken JSX — all 18 screens properly wired
+- Missing Hugging Face Space demo interface
+- Missing babel module-resolver for @/ aliases
+- Missing expo-notifications import in config.ts
+
+#### Security
+- Fernet encryption for API credentials
+- OAuth2 flows where available
+- Rate limiting per platform
+
+---
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
