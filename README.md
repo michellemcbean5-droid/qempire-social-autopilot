@@ -1,3 +1,49 @@
+## 🌐 Live Web Preview
+
+Test the app right now in your browser — no download needed!
+
+**👉 [Click here to test Q-Empire](https://raw.githack.com/michellemcbean5-droid/qempire-social-autopilot/main/preview.html)**
+
+Or use this direct link:
+```
+https://raw.githack.com/michellemcbean5-droid/qempire-social-autopilot/main/preview.html
+```
+
+### What You Can Test:
+- 🎬 **Animated Splash Screen** with Q-Bot, Mermaid (blonde hair), and Human Son
+- 📱 **Onboarding Flow** with 4 animated slides
+- 🏠 **Dashboard** with live stats, autopilot status, and platform list
+- ✨ **AI Generated Content** preview
+- 📊 **Analytics** with performance charts
+- ⚙️ **Settings** screen
+- 🎨 **Bright colors**: Electric Yellow, Hot Pink, Electric Blue
+
+---
+
+## 🎨 What's New in v1.0.0
+
+### Animated Characters
+- **🧜🏾‍♀️ Black Mermaid** with flowing blonde hair
+- **👦 Human Son** with golden hair and bright outfit
+- **🤖 Q-Bot Agent** with glowing antenna and waving arms
+
+### Vibrant Color Palette
+- Electric Yellow `#FFE600`
+- Hot Pink `#FF1493`
+- Electric Blue `#00D4FF`
+- Neon Green `#39FF14`
+- Coral `#FF6B6B`
+
+### Animations
+- Floating particles on splash screen
+- Character swaying, bouncing, and floating
+- Staggered card entrance animations
+- Pulsing autopilot status
+- Glowing badges and buttons
+- Animated progress bars
+
+---
+
 # 🚀 Q-Empire Social Media Autopilot
 
 **AI-Powered Social Media Marketing That Runs While You Sleep**
