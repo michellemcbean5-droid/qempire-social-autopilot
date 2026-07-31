@@ -1,7 +1,7 @@
 import { MD3DarkTheme, MD3Theme } from 'react-native-paper';
 
 export const colors = {
-  // Q-Empire Brand Palette
+  // Q-Empire Brand Palette - BRIGHT & VIBRANT
   deepObsidian: '#0A0A1A',
   royalBlue: '#4169E1',
   electricPurple: '#BF00FF',
@@ -9,13 +9,21 @@ export const colors = {
   warmGold: '#D4AF37',
   midnightNavy: '#0D0D2B',
   softWhite: '#F0F0FF',
-  
+
+  // NEW BRIGHT COLORS
+  electricYellow: '#FFE600',
+  hotPink: '#FF1493',
+  electricBlue: '#00D4FF',
+  neonGreen: '#39FF14',
+  coral: '#FF6B6B',
+  lavender: '#E6E6FA',
+
   // Semantic Colors
   success: '#10B981',
   warning: '#F59E0B',
   error: '#EF4444',
   info: '#3B82F6',
-  
+
   // Tier Colors
   tierFree: '#6B7280',
   tierBasic: '#3B82F6',
@@ -27,18 +35,18 @@ export const theme: MD3Theme = {
   ...MD3DarkTheme,
   colors: {
     ...MD3DarkTheme.colors,
-    primary: colors.royalBlue,
-    onPrimary: colors.softWhite,
+    primary: colors.electricBlue,
+    onPrimary: colors.deepObsidian,
     primaryContainer: '#1a1a3e',
     onPrimaryContainer: colors.softWhite,
-    secondary: colors.electricPurple,
+    secondary: colors.hotPink,
     onSecondary: colors.softWhite,
     secondaryContainer: '#2a0a3e',
     onSecondaryContainer: colors.softWhite,
-    tertiary: colors.neonAqua,
+    tertiary: colors.electricYellow,
     onTertiary: colors.deepObsidian,
-    tertiaryContainer: '#0a2a2e',
-    onTertiaryContainer: colors.neonAqua,
+    tertiaryContainer: '#2a2a0a',
+    onTertiaryContainer: colors.electricYellow,
     background: colors.deepObsidian,
     onBackground: colors.softWhite,
     surface: colors.midnightNavy,
@@ -51,7 +59,7 @@ export const theme: MD3Theme = {
     scrim: '#000000',
     inverseSurface: colors.softWhite,
     inverseOnSurface: colors.deepObsidian,
-    inversePrimary: colors.royalBlue,
+    inversePrimary: colors.electricBlue,
     elevation: {
       level0: 'transparent',
       level1: '#12122e',
@@ -78,12 +86,11 @@ export const theme: MD3Theme = {
     card: '#12122e',
     cardHighlight: '#1a1a3e',
     accent: colors.warmGold,
-    gradientStart: colors.royalBlue,
+    gradientStart: colors.electricBlue,
     gradientEnd: colors.electricPurple,
   },
   fonts: {
     ...MD3DarkTheme.fonts,
-    // Custom font configuration
   },
 };
 
@@ -182,10 +189,53 @@ export const shadows = {
     elevation: 8,
   },
   glow: {
-    shadowColor: colors.royalBlue,
+    shadowColor: colors.electricBlue,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5,
     shadowRadius: 12,
     elevation: 12,
   },
+  pinkGlow: {
+    shadowColor: colors.hotPink,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
+    elevation: 12,
+  },
+  yellowGlow: {
+    shadowColor: colors.electricYellow,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
+    elevation: 12,
+  },
+};
+
+export const animations = {
+  // Timing
+  fast: 200,
+  normal: 300,
+  slow: 500,
+
+  // Spring configs
+  bouncy: {
+    damping: 10,
+    stiffness: 100,
+  },
+  gentle: {
+    damping: 20,
+    stiffness: 100,
+  },
+  wobbly: {
+    damping: 8,
+    stiffness: 200,
+  },
+
+  // Scale values
+  pressScale: 0.96,
+  hoverScale: 1.02,
+
+  // Opacity values
+  disabled: 0.5,
+  pressed: 0.8,
 };
