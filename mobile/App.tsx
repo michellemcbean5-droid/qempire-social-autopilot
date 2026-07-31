@@ -1,12 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PaperProvider } from 'react-native-paper';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Toast from 'react-native-toast-message';
 import * as Notifications from 'expo-notifications';
 import * as SplashScreen from 'expo-splash-screen';
-import { useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
 
@@ -15,6 +14,7 @@ import Navigation from '@/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { useSubscriptionStore } from '@/store/subscriptionStore';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import SplashScreen from '@/components/SplashScreen';
 import { initializeDeepLinks } from '@/utils/deepLinks';
 import { registerForPushNotifications } from '@/utils/notifications';
 
@@ -41,7 +41,8 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
-  const [appReady, setAppReady] = React.useState(false);
+  const [showSplash, setShowSplash] = useState(true);
+  const [appReady, setAppReady] = useState(false);
   const { initializeAuth } = useAuthStore();
   const { initializeSubscription } = useSubscriptionStore();
 
@@ -62,10 +63,14 @@ export default function App() {
   }, []);
 
   const onLayoutRootView = useCallback(async () => {
-    if (appReady) {
+    if (appReady && !showSplash) {
       await SplashScreen.hideAsync();
     }
-  }, [appReady]);
+  }, [appReady, showSplash]);
+
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+  };
 
   if (!appReady) {
     return (
@@ -81,7 +86,11 @@ export default function App() {
         <QueryClientProvider client={queryClient}>
           <PaperProvider theme={theme}>
             <View style={styles.container} onLayout={onLayoutRootView}>
-              <Navigation />
+              {showSplash ? (
+                <SplashScreen onAnimationComplete={handleSplashComplete} />
+              ) : (
+                <Navigation />
+              )}
               <StatusBar style="light" />
               <Toast />
             </View>
