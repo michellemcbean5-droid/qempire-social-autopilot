@@ -3,450 +3,486 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Q-Empire Social Autopilot - Preview</title>
+<meta name="description" content="Q-Empire Social Autopilot - AI-powered social media marketing that posts to 25 platforms while you sleep">
+<meta name="theme-color" content="#0A0A1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Q-Empire Social Autopilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
-
-:root {
-  --electric-yellow: #FFE600;
-  --hot-pink: #FF1493;
-  --electric-blue: #00D4FF;
-  --deep-purple: #6B00FF;
-  --neon-cyan: #00FFFF;
-  --bg-dark: #0A0A1A;
-  --bg-card: #12122E;
-  --bg-surface: #1A1A3E;
-  --text-primary: #F0F0FF;
-  --text-secondary: #A0A0C0;
-  --success: #10B981;
-  --warning: #F59E0B;
-}
-
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body {
+html, body {
   font-family: 'Poppins', sans-serif;
-  background: var(--bg-dark);
-  color: var(--text-primary);
-  overflow-x: hidden;
-  min-height: 100vh;
-}
-
-/* ANIMATED BACKGROUND */
-.bg-animation {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  z-index: 0;
+  background: #0A0A1A;
+  color: #F0F0FF;
   overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  -webkit-tap-highlight-color: transparent;
 }
-.bg-animation .orb {
-  position: absolute;
+
+/* ===== ANIMATED BACKGROUND ===== */
+.bg-orb {
+  position: fixed;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.4;
-  animation: float 8s ease-in-out infinite;
+  filter: blur(100px);
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
 }
-.orb-1 { width: 300px; height: 300px; background: var(--electric-blue); top: 10%; left: 10%; animation-delay: 0s; }
-.orb-2 { width: 250px; height: 250px; background: var(--hot-pink); top: 60%; right: 10%; animation-delay: 2s; }
-.orb-3 { width: 200px; height: 200px; background: var(--electric-yellow); bottom: 20%; left: 30%; animation-delay: 4s; }
-.orb-4 { width: 180px; height: 180px; background: var(--deep-purple); top: 40%; right: 30%; animation-delay: 1s; }
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-30px) scale(1.1); }
+.orb-1 { width: 400px; height: 400px; background: #00D4FF; top: -10%; left: -10%; animation: orbFloat 12s ease-in-out infinite; }
+.orb-2 { width: 350px; height: 350px; background: #FF1493; bottom: -5%; right: -10%; animation: orbFloat 14s ease-in-out infinite 2s; }
+.orb-3 { width: 300px; height: 300px; background: #FFE600; top: 40%; left: 30%; animation: orbFloat 10s ease-in-out infinite 4s; }
+.orb-4 { width: 250px; height: 250px; background: #6B00FF; top: 60%; right: 20%; animation: orbFloat 16s ease-in-out infinite 1s; }
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -40px) scale(1.1); }
+  50% { transform: translate(-20px, 20px) scale(0.95); }
+  75% { transform: translate(40px, 30px) scale(1.05); }
 }
 
-/* PARTICLES */
-.particles {
+/* ===== PARTICLES ===== */
+.particles-container {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
   z-index: 1;
   pointer-events: none;
+  overflow: hidden;
 }
 .particle {
   position: absolute;
-  width: 4px; height: 4px;
-  background: var(--electric-yellow);
   border-radius: 50%;
-  animation: particle-rise 6s linear infinite;
+  animation: particleRise linear infinite;
   opacity: 0.6;
 }
-@keyframes particle-rise {
-  0% { transform: translateY(100vh) scale(0); opacity: 0; }
-  10% { opacity: 0.6; }
-  90% { opacity: 0.6; }
-  100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+@keyframes particleRise {
+  0% { transform: translateY(100vh) scale(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.7; }
+  90% { opacity: 0.7; }
+  100% { transform: translateY(-20vh) scale(1) rotate(360deg); opacity: 0; }
 }
 
-/* APP CONTAINER */
-.app-container {
+/* ===== APP CONTAINER ===== */
+.app-frame {
   position: relative;
   z-index: 2;
   max-width: 430px;
   margin: 0 auto;
-  min-height: 100vh;
-  background: rgba(10, 10, 26, 0.85);
+  height: 100vh;
+  background: rgba(10, 10, 26, 0.92);
   backdrop-filter: blur(20px);
-  border-left: 1px solid rgba(255,255,255,0.05);
-  border-right: 1px solid rgba(255,255,255,0.05);
+  border-left: 1px solid rgba(255,255,255,0.04);
+  border-right: 1px solid rgba(255,255,255,0.04);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-/* SCREEN */
+/* ===== SCREEN SYSTEM ===== */
 .screen {
   display: none;
-  padding: 20px;
-  min-height: 100vh;
-  animation: screenIn 0.5s ease-out;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 20px;
+  animation: screenEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  scrollbar-width: none;
 }
+.screen::-webkit-scrollbar { display: none; }
 .screen.active { display: block; }
-@keyframes screenIn {
-  from { opacity: 0; transform: translateY(20px); }
+@keyframes screenEnter {
+  from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* SPLASH SCREEN */
-.splash-screen {
+/* ===== SPLASH SCREEN ===== */
+.splash-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
   text-align: center;
+  padding: 20px;
   position: relative;
 }
 
 /* CHARACTERS */
-.character-container {
+.char-scene {
   position: relative;
   width: 280px;
-  height: 200px;
-  margin-bottom: 30px;
+  height: 180px;
+  margin-bottom: 24px;
 }
 
-/* Q-BOT AGENT */
-.q-bot {
-  position: absolute;
-  width: 80px;
-  height: 100px;
-  right: 20px;
-  top: 20px;
-  animation: bot-float 3s ease-in-out infinite;
-}
-@keyframes bot-float {
-  0%, 100% { transform: translateY(0) rotate(-5deg); }
-  50% { transform: translateY(-15px) rotate(5deg); }
-}
-.q-bot-body {
-  width: 60px; height: 50px;
-  background: linear-gradient(135deg, var(--electric-blue), var(--deep-purple));
-  border-radius: 15px;
-  position: relative;
-  margin: 0 auto;
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
-}
-.q-bot-eye {
-  width: 12px; height: 12px;
-  background: var(--electric-yellow);
-  border-radius: 50%;
-  position: absolute;
-  top: 15px;
-  animation: blink 3s infinite;
-}
-.q-bot-eye.left { left: 12px; }
-.q-bot-eye.right { right: 12px; }
-@keyframes blink {
-  0%, 90%, 100% { transform: scaleY(1); }
-  95% { transform: scaleY(0.1); }
-}
-.q-bot-antenna {
-  width: 4px; height: 15px;
-  background: var(--electric-yellow);
-  position: absolute;
-  top: -15px; left: 50%;
-  transform: translateX(-50%);
-  border-radius: 2px;
-}
-.q-bot-antenna::after {
-  content: '';
-  width: 10px; height: 10px;
-  background: var(--hot-pink);
-  border-radius: 50%;
-  position: absolute;
-  top: -8px; left: 50%;
-  transform: translateX(-50%);
-  animation: antenna-glow 1s ease-in-out infinite alternate;
-}
-@keyframes antenna-glow {
-  from { box-shadow: 0 0 5px var(--hot-pink); }
-  to { box-shadow: 0 0 15px var(--hot-pink), 0 0 30px var(--hot-pink); }
-}
-.q-bot-arm {
-  width: 8px; height: 25px;
-  background: linear-gradient(var(--electric-blue), var(--deep-purple));
-  position: absolute;
-  bottom: 10px;
-  border-radius: 4px;
-}
-.q-bot-arm.left { left: -5px; transform: rotate(-20deg); animation: wave-left 2s ease-in-out infinite; }
-.q-bot-arm.right { right: -5px; transform: rotate(20deg); animation: wave-right 2s ease-in-out infinite; }
-@keyframes wave-left {
-  0%, 100% { transform: rotate(-20deg); }
-  50% { transform: rotate(-40deg); }
-}
-@keyframes wave-right {
-  0%, 100% { transform: rotate(20deg); }
-  50% { transform: rotate(40deg); }
-}
-
-/* BLACK MERMAID */
+/* MERMAID */
 .mermaid {
   position: absolute;
-  width: 100px;
-  height: 140px;
-  left: 30px;
-  top: 10px;
-  animation: mermaid-sway 4s ease-in-out infinite;
+  left: 10px;
+  top: 0;
+  animation: mermaidSway 3.5s ease-in-out infinite;
 }
-@keyframes mermaid-sway {
+@keyframes mermaidSway {
   0%, 100% { transform: translateY(0) rotate(-3deg); }
-  50% { transform: translateY(-10px) rotate(3deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
 }
 .mermaid-hair {
-  width: 50px; height: 40px;
-  background: linear-gradient(180deg, #FFD700, #FFA500, #FF8C00);
-  border-radius: 25px 25px 10px 10px;
+  width: 55px; height: 45px;
+  background: linear-gradient(180deg, #FFD700, #FFA500, #FF8C00, #DAA520);
+  border-radius: 50% 50% 40% 40%;
   position: absolute;
-  top: 0; left: 25px;
-  animation: hair-flow 3s ease-in-out infinite;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  animation: hairWave 2s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
 }
-@keyframes hair-flow {
-  0%, 100% { transform: scaleX(1) skewX(0deg); }
-  50% { transform: scaleX(1.1) skewX(-5deg); }
+@keyframes hairWave {
+  0%, 100% { transform: translateX(-50%) scaleX(1) skewX(0deg); }
+  50% { transform: translateX(-50%) scaleX(1.15) skewX(-8deg); }
 }
 .mermaid-face {
-  width: 35px; height: 30px;
+  width: 40px; height: 35px;
   background: #8B4513;
   border-radius: 50%;
   position: absolute;
-  top: 20px; left: 32px;
+  top: 22px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
 }
 .mermaid-eye {
-  width: 6px; height: 6px;
+  width: 7px; height: 7px;
   background: white;
   border-radius: 50%;
   position: absolute;
   top: 10px;
+  animation: blink 4s infinite;
 }
 .mermaid-eye::after {
   content: '';
-  width: 3px; height: 3px;
+  width: 3.5px; height: 3.5px;
   background: #4A2C00;
   border-radius: 50%;
   position: absolute;
-  top: 1px; left: 1px;
+  top: 1.5px; left: 1.5px;
 }
-.mermaid-eye.left { left: 6px; }
-.mermaid-eye.right { right: 6px; }
+.mermaid-eye.left { left: 7px; }
+.mermaid-eye.right { right: 7px; }
+@keyframes blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
 .mermaid-smile {
-  width: 12px; height: 6px;
-  border-bottom: 2px solid #FF69B4;
-  border-radius: 0 0 12px 12px;
+  width: 14px; height: 7px;
+  border-bottom: 2.5px solid #FF69B4;
+  border-radius: 0 0 14px 14px;
   position: absolute;
   bottom: 6px; left: 50%;
   transform: translateX(-50%);
 }
 .mermaid-body {
-  width: 30px; height: 40px;
-  background: linear-gradient(180deg, var(--hot-pink), #FF6B9D);
-  border-radius: 15px 15px 5px 5px;
+  width: 32px; height: 45px;
+  background: linear-gradient(180deg, #FF1493, #FF6B9D);
+  border-radius: 16px 16px 6px 6px;
   position: absolute;
-  top: 48px; left: 35px;
+  top: 52px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
 }
 .mermaid-tail {
-  width: 50px; height: 50px;
-  background: linear-gradient(135deg, var(--electric-blue), var(--deep-purple));
+  width: 55px; height: 55px;
+  background: linear-gradient(135deg, #00D4FF, #6B00FF);
   border-radius: 0 50% 50% 50%;
   position: absolute;
-  bottom: 0; left: 25px;
-  transform: rotate(45deg);
-  animation: tail-wave 2s ease-in-out infinite;
-  box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+  bottom: 0; left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  animation: tailWave 2s ease-in-out infinite;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
 }
-@keyframes tail-wave {
-  0%, 100% { transform: rotate(45deg) scale(1); }
-  50% { transform: rotate(50deg) scale(1.05); }
+@keyframes tailWave {
+  0%, 100% { transform: translateX(-50%) rotate(45deg) scale(1); }
+  50% { transform: translateX(-50%) rotate(50deg) scale(1.08); }
 }
 .mermaid-tail::after {
   content: '';
-  width: 30px; height: 30px;
-  background: linear-gradient(135deg, var(--electric-yellow), #FFD700);
+  width: 35px; height: 35px;
+  background: linear-gradient(135deg, #FFE600, #FFD700);
   border-radius: 0 50% 50% 50%;
   position: absolute;
-  top: 5px; left: 5px;
+  top: 6px; left: 6px;
 }
 
-/* HUMAN SON */
-.human-son {
+/* SON */
+.son {
   position: absolute;
-  width: 60px;
-  height: 100px;
-  left: 100px;
+  left: 95px;
   bottom: 0;
-  animation: son-bounce 2.5s ease-in-out infinite;
+  animation: sonBounce 2.2s ease-in-out infinite;
 }
-@keyframes son-bounce {
+@keyframes sonBounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-10px); }
 }
 .son-head {
-  width: 30px; height: 30px;
+  width: 32px; height: 32px;
   background: #CD853F;
   border-radius: 50%;
-  position: absolute;
-  top: 0; left: 15px;
+  position: relative;
 }
 .son-hair {
-  width: 25px; height: 12px;
-  background: #FFD700;
-  border-radius: 12px 12px 0 0;
+  width: 28px; height: 14px;
+  background: linear-gradient(180deg, #FFD700, #FFA500);
+  border-radius: 14px 14px 0 0;
   position: absolute;
-  top: -5px; left: 17px;
-  animation: hair-bounce 1s ease-in-out infinite;
+  top: -6px; left: 50%;
+  transform: translateX(-50%);
+  animation: hairBounce 1.2s ease-in-out infinite;
 }
-@keyframes hair-bounce {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(-5deg); }
+@keyframes hairBounce {
+  0%, 100% { transform: translateX(-50%) rotate(0deg); }
+  50% { transform: translateX(-50%) rotate(-6deg); }
 }
 .son-eye {
-  width: 5px; height: 5px;
+  width: 5.5px; height: 5.5px;
   background: #4A2C00;
   border-radius: 50%;
   position: absolute;
-  top: 10px;
+  top: 11px;
 }
 .son-eye.left { left: 6px; }
 .son-eye.right { right: 6px; }
 .son-smile {
-  width: 10px; height: 5px;
+  width: 11px; height: 5.5px;
   border-bottom: 2px solid #FF69B4;
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 11px 11px;
   position: absolute;
   bottom: 6px; left: 50%;
   transform: translateX(-50%);
 }
 .son-shirt {
-  width: 28px; height: 35px;
-  background: linear-gradient(180deg, var(--electric-yellow), #FFA500);
-  border-radius: 5px;
-  position: absolute;
-  top: 30px; left: 16px;
+  width: 30px; height: 38px;
+  background: linear-gradient(180deg, #FFE600, #FFA500);
+  border-radius: 6px;
+  margin-top: 2px;
 }
 .son-pants {
-  width: 26px; height: 25px;
+  width: 28px; height: 28px;
   background: #4169E1;
   border-radius: 0 0 5px 5px;
-  position: absolute;
-  top: 62px; left: 17px;
+  margin: 0 auto;
 }
 .son-shoes {
-  width: 12px; height: 8px;
-  background: #FF1493;
-  border-radius: 3px;
-  position: absolute;
-  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2px;
 }
-.son-shoes.left { left: 14px; }
-.son-shoes.right { right: 14px; }
+.son-shoe {
+  width: 13px; height: 9px;
+  background: #FF1493;
+  border-radius: 4px;
+}
+
+/* Q-BOT */
+.q-bot {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  animation: botFloat 3s ease-in-out infinite;
+}
+@keyframes botFloat {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50% { transform: translateY(-18px) rotate(4deg); }
+}
+.q-bot-antenna {
+  width: 4px; height: 18px;
+  background: #FFE600;
+  border-radius: 2px;
+  margin: 0 auto;
+  position: relative;
+}
+.q-bot-antenna::after {
+  content: '';
+  width: 12px; height: 12px;
+  background: #FF1493;
+  border-radius: 50%;
+  position: absolute;
+  top: -10px; left: 50%;
+  transform: translateX(-50%);
+  animation: antennaGlow 1s ease-in-out infinite alternate;
+  box-shadow: 0 0 10px #FF1493;
+}
+@keyframes antennaGlow {
+  from { box-shadow: 0 0 5px #FF1493; }
+  to { box-shadow: 0 0 20px #FF1493, 0 0 40px #FF1493; }
+}
+.q-bot-body {
+  width: 65px; height: 55px;
+  background: linear-gradient(135deg, #00D4FF, #6B00FF);
+  border-radius: 18px;
+  position: relative;
+  margin-top: 2px;
+  box-shadow: 0 0 25px rgba(0, 212, 255, 0.4);
+}
+.q-bot-eye {
+  width: 14px; height: 14px;
+  background: #FFE600;
+  border-radius: 50%;
+  position: absolute;
+  top: 16px;
+  animation: botBlink 3.5s infinite;
+}
+.q-bot-eye::after {
+  content: '';
+  width: 7px; height: 7px;
+  background: #0A0A1A;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px; left: 2px;
+}
+.q-bot-eye.left { left: 13px; }
+.q-bot-eye.right { right: 13px; }
+@keyframes botBlink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.1); }
+}
+.q-bot-arms {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  bottom: 8px;
+  width: 100%;
+  padding: 0 -8px;
+}
+.q-bot-arm {
+  width: 9px; height: 28px;
+  background: linear-gradient(180deg, #00D4FF, #6B00FF);
+  border-radius: 5px;
+  position: absolute;
+  bottom: 5px;
+}
+.q-bot-arm.left { left: -7px; transform: rotate(-22deg); animation: waveLeft 2s ease-in-out infinite; }
+.q-bot-arm.right { right: -7px; transform: rotate(22deg); animation: waveRight 2s ease-in-out infinite; }
+@keyframes waveLeft {
+  0%, 100% { transform: rotate(-22deg); }
+  50% { transform: rotate(-42deg); }
+}
+@keyframes waveRight {
+  0%, 100% { transform: rotate(22deg); }
+  50% { transform: rotate(42deg); }
+}
 
 /* SPLASH TEXT */
 .splash-title {
-  font-size: 42px;
-  font-weight: 800;
-  background: linear-gradient(90deg, var(--electric-yellow), var(--hot-pink), var(--electric-blue));
+  font-size: 46px;
+  font-weight: 900;
+  background: linear-gradient(90deg, #FFE600, #FF1493, #00D4FF, #FFE600);
+  background-size: 300% 100%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: 8px;
-  animation: title-glow 3s ease-in-out infinite;
+  animation: titleShimmer 4s linear infinite;
+  letter-spacing: -2px;
+  margin-bottom: 6px;
+  text-shadow: none;
 }
-@keyframes title-glow {
-  0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(1.3); }
+@keyframes titleShimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
 }
 .splash-subtitle {
   font-size: 18px;
-  color: var(--electric-blue);
-  font-weight: 600;
-  letter-spacing: 3px;
+  font-weight: 700;
+  color: #00D4FF;
+  letter-spacing: 4px;
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .splash-tagline {
   font-size: 14px;
-  color: var(--text-secondary);
-  margin-bottom: 30px;
-  padding: 0 20px;
+  color: #A0A0C0;
+  margin-bottom: 28px;
+  max-width: 280px;
+  line-height: 1.5;
 }
 
 /* BADGES */
 .badge-row {
   display: flex;
   gap: 10px;
-  margin-bottom: 40px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 .badge {
-  padding: 6px 14px;
+  padding: 7px 16px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 700;
-  border: 1px solid;
-  animation: badge-pulse 2s ease-in-out infinite;
+  border: 1.5px solid;
+  animation: badgePulse 2.5s ease-in-out infinite;
+  backdrop-filter: blur(10px);
 }
-.badge-primary {
-  background: rgba(0, 212, 255, 0.15);
+.badge:nth-child(2) { animation-delay: 0.4s; }
+.badge:nth-child(3) { animation-delay: 0.8s; }
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
+  50% { transform: scale(1.06); }
+}
+.badge-blue {
+  background: rgba(0, 212, 255, 0.12);
   border-color: rgba(0, 212, 255, 0.4);
-  color: var(--electric-blue);
+  color: #00D4FF;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.15);
 }
-.badge-secondary {
-  background: rgba(255, 20, 147, 0.15);
+.badge-pink {
+  background: rgba(255, 20, 147, 0.12);
   border-color: rgba(255, 20, 147, 0.4);
-  color: var(--hot-pink);
-  animation-delay: 0.5s;
+  color: #FF1493;
+  box-shadow: 0 0 15px rgba(255, 20, 147, 0.15);
 }
-@keyframes badge-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+.badge-yellow {
+  background: rgba(255, 230, 0, 0.12);
+  border-color: rgba(255, 230, 0, 0.4);
+  color: #FFE600;
+  box-shadow: 0 0 15px rgba(255, 230, 0, 0.15);
 }
 
 /* BUTTONS */
 .btn {
   width: 100%;
-  padding: 16px 24px;
+  max-width: 320px;
+  padding: 18px 28px;
   border: none;
-  border-radius: 16px;
+  border-radius: 18px;
   font-size: 16px;
   font-weight: 700;
   font-family: 'Poppins', sans-serif;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
+  text-align: center;
+  display: block;
+  text-decoration: none;
 }
+.btn:active { transform: scale(0.96); }
 .btn-primary {
-  background: linear-gradient(135deg, var(--electric-blue), var(--deep-purple));
+  background: linear-gradient(135deg, #00D4FF, #6B00FF);
   color: white;
-  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.4);
+  box-shadow: 0 4px 25px rgba(0, 212, 255, 0.4), 0 0 40px rgba(0, 212, 255, 0.1);
+  margin-bottom: 12px;
 }
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 30px rgba(0, 212, 255, 0.6);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 35px rgba(0, 212, 255, 0.5), 0 0 50px rgba(0, 212, 255, 0.2);
 }
 .btn-primary::after {
   content: '';
   position: absolute;
   top: -50%; left: -50%;
   width: 200%; height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
   animation: shimmer 3s infinite;
 }
 @keyframes shimmer {
@@ -455,169 +491,221 @@ body {
 }
 .btn-secondary {
   background: transparent;
-  border: 2px solid var(--hot-pink);
-  color: var(--hot-pink);
-  margin-top: 12px;
+  border: 2px solid #FF1493;
+  color: #FF1493;
 }
 .btn-secondary:hover {
   background: rgba(255, 20, 147, 0.1);
+  box-shadow: 0 0 20px rgba(255, 20, 147, 0.2);
 }
 
-/* ONBOARDING */
-.onboarding-slide {
-  text-align: center;
-  padding-top: 40px;
+/* LOADING DOTS */
+.loading-dots {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
 }
-.onboarding-char {
-  width: 200px;
-  height: 160px;
-  margin: 0 auto 30px;
-  position: relative;
+.loading-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  animation: dotBounce 1.4s ease-in-out infinite;
+}
+.loading-dot:nth-child(1) { background: #FFE600; animation-delay: 0s; }
+.loading-dot:nth-child(2) { background: #FF1493; animation-delay: 0.2s; }
+.loading-dot:nth-child(3) { background: #00D4FF; animation-delay: 0.4s; }
+@keyframes dotBounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+  40% { transform: scale(1.2); opacity: 1; }
+}
+
+/* ===== ONBOARDING ===== */
+.onboarding-wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+}
+.onboarding-slide {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  animation: slideEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.onboarding-slide.active { display: flex; }
+@keyframes slideEnter {
+  from { opacity: 0; transform: translateX(50px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.onboarding-slide .char-scene {
+  transform: scale(1.3);
+  margin-bottom: 40px;
 }
 .onboarding-title {
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 16px;
-  background: linear-gradient(90deg, var(--electric-yellow), var(--hot-pink));
+  background: linear-gradient(90deg, #FFE600, #FF1493);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 .onboarding-desc {
-  font-size: 16px;
-  color: var(--text-secondary);
-  line-height: 1.6;
+  font-size: 15px;
+  color: #A0A0C0;
+  line-height: 1.7;
+  max-width: 300px;
   margin-bottom: 40px;
-  padding: 0 10px;
 }
-.dots {
+.onboarding-dots {
   display: flex;
-  gap: 8px;
-  justify-content: center;
+  gap: 10px;
   margin-bottom: 30px;
 }
-.dot {
+.onboarding-dot {
   width: 10px; height: 10px;
   border-radius: 50%;
-  background: var(--bg-surface);
-  border: 2px solid var(--text-secondary);
+  background: #2a2a4e;
+  border: 2px solid #4a4a6e;
   transition: all 0.3s;
+  cursor: pointer;
 }
-.dot.active {
-  background: var(--electric-blue);
-  border-color: var(--electric-blue);
-  box-shadow: 0 0 10px var(--electric-blue);
-  transform: scale(1.2);
+.onboarding-dot.active {
+  background: #00D4FF;
+  border-color: #00D4FF;
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
+  transform: scale(1.3);
+  width: 28px;
+  border-radius: 5px;
 }
+.skip-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: #A0A0C0;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 12px;
+  transition: all 0.3s;
+  z-index: 10;
+}
+.skip-btn:hover { color: #00D4FF; background: rgba(0, 212, 255, 0.1); }
 
-/* DASHBOARD */
+/* ===== LOGIN ===== */
+.login-wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+}
+.login-wrap .char-scene {
+  transform: scale(1.2);
+  margin-bottom: 30px;
+}
+.login-wrap .q-bot { animation: botFloat 2.5s ease-in-out infinite; }
+.input-field {
+  width: 100%;
+  max-width: 320px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(255,255,255,0.08);
+  background: #12122e;
+  color: #F0F0FF;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.3s;
+  margin-bottom: 12px;
+}
+.input-field:focus {
+  border-color: #00D4FF;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.15);
+}
+.input-field::placeholder { color: #6B7280; }
+
+/* ===== DASHBOARD ===== */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding-top: 10px;
+  align-items: flex-start;
+  padding-top: 16px;
+  margin-bottom: 20px;
 }
 .dashboard-greeting {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 13px;
+  color: #A0A0C0;
+  margin-bottom: 4px;
 }
-.dashboard-greeting span {
-  background: linear-gradient(90deg, var(--electric-yellow), var(--hot-pink));
+.dashboard-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #F0F0FF;
+}
+.dashboard-title span {
+  background: linear-gradient(90deg, #FFE600, #FF1493);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
-.profile-pic {
-  width: 44px; height: 44px;
+.profile-avatar {
+  width: 46px; height: 46px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--hot-pink), var(--electric-blue));
+  background: linear-gradient(135deg, #FF1493, #00D4FF);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
-  animation: profile-glow 3s ease-in-out infinite;
+  font-size: 22px;
+  animation: avatarGlow 3s ease-in-out infinite;
+  box-shadow: 0 0 20px rgba(255, 20, 147, 0.3);
 }
-@keyframes profile-glow {
-  0%, 100% { box-shadow: 0 0 10px rgba(255, 20, 147, 0.3); }
-  50% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.5), 0 0 40px rgba(255, 20, 147, 0.3); }
+@keyframes avatarGlow {
+  0%, 100% { box-shadow: 0 0 15px rgba(255, 20, 147, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(0, 212, 255, 0.5), 0 0 50px rgba(255, 20, 147, 0.2); }
 }
-
-/* STATS CARDS */
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-.stat-card {
-  background: var(--bg-card);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 16px;
-  padding: 16px;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.3s;
-}
-.stat-card:hover { transform: translateY(-4px); }
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  border-radius: 16px 16px 0 0;
-}
-.stat-card.blue::before { background: linear-gradient(90deg, var(--electric-blue), var(--deep-purple)); }
-.stat-card.pink::before { background: linear-gradient(90deg, var(--hot-pink), #FF6B9D); }
-.stat-card.yellow::before { background: linear-gradient(90deg, var(--electric-yellow), #FFA500); }
-.stat-card.green::before { background: linear-gradient(90deg, var(--success), #34D399); }
-.stat-icon {
-  font-size: 24px;
-  margin-bottom: 8px;
-}
-.stat-value {
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--text-primary);
-}
-.stat-label {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-top: 4px;
-}
-.stat-trend {
-  font-size: 11px;
-  font-weight: 600;
-  margin-top: 6px;
-}
-.stat-trend.up { color: var(--success); }
-.stat-trend.down { color: #EF4444; }
 
 /* AUTOPILOT CARD */
 .autopilot-card {
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(107, 0, 255, 0.1));
-  border: 1px solid rgba(0, 212, 255, 0.3);
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(107, 0, 255, 0.06));
+  border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 20px;
   padding: 20px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   position: relative;
   overflow: hidden;
+  animation: cardPulse 4s ease-in-out infinite;
+}
+@keyframes cardPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(0, 212, 255, 0); }
+  50% { box-shadow: 0 0 30px rgba(0, 212, 255, 0.15); }
 }
 .autopilot-card::after {
   content: '';
   position: absolute;
   top: -50%; right: -50%;
   width: 100%; height: 100%;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.1), transparent);
-  animation: autopilot-pulse 4s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.08), transparent);
+  animation: cardGlow 5s ease-in-out infinite;
 }
-@keyframes autopilot-pulse {
+@keyframes cardGlow {
   0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.2); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 0.8; }
 }
 .autopilot-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   position: relative;
   z-index: 1;
 }
@@ -627,67 +715,188 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  color: #F0F0FF;
 }
+.autopilot-title .icon { font-size: 22px; }
 .autopilot-status {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  font-weight: 600;
-  color: var(--success);
-}
-.status-dot {
-  width: 8px; height: 8px;
-  background: var(--success);
-  border-radius: 50%;
-  animation: status-blink 2s ease-in-out infinite;
-}
-@keyframes status-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-.autopilot-info {
-  font-size: 14px;
-  color: var(--text-secondary);
+  font-weight: 700;
+  color: #10B981;
   position: relative;
   z-index: 1;
 }
+.status-dot {
+  width: 8px; height: 8px;
+  background: #10B981;
+  border-radius: 50%;
+  animation: statusBlink 2s ease-in-out infinite;
+  box-shadow: 0 0 8px #10B981;
+}
+@keyframes statusBlink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+.autopilot-info {
+  font-size: 14px;
+  color: #A0A0C0;
+  position: relative;
+  z-index: 1;
+  line-height: 1.6;
+}
 .autopilot-info strong {
-  color: var(--electric-yellow);
+  color: #FFE600;
+  font-weight: 700;
+}
+.progress-bar-bg {
+  height: 6px;
+  background: #0A0A1A;
+  border-radius: 3px;
+  margin-top: 14px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+.progress-bar-fill {
+  height: 100%;
+  width: 72%;
+  background: linear-gradient(90deg, #00D4FF, #6B00FF);
+  border-radius: 3px;
+  animation: progressGrow 2s ease-out;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+@keyframes progressGrow {
+  from { width: 0%; }
+  to { width: 72%; }
+}
+.progress-text {
+  font-size: 11px;
+  color: #6B7280;
+  margin-top: 6px;
+  text-align: right;
+  position: relative;
+  z-index: 1;
 }
 
-/* PLATFORM LIST */
-.section-title {
-  font-size: 18px;
+/* STATS GRID */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: #12122e;
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 18px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+  animation: statEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stat-card:nth-child(4) { animation-delay: 0.4s; }
+@keyframes statEnter {
+  from { opacity: 0; transform: translateY(20px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.stat-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255,255,255,0.1);
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 18px 18px 0 0;
+}
+.stat-card.blue::before { background: linear-gradient(90deg, #00D4FF, #6B00FF); }
+.stat-card.pink::before { background: linear-gradient(90deg, #FF1493, #FF6B9D); }
+.stat-card.yellow::before { background: linear-gradient(90deg, #FFE600, #FFA500); }
+.stat-card.green::before { background: linear-gradient(90deg, #10B981, #34D399); }
+.stat-icon {
+  font-size: 24px;
+  margin-bottom: 10px;
+  display: inline-block;
+  animation: iconFloat 3s ease-in-out infinite;
+}
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: #F0F0FF;
+  margin-bottom: 2px;
+}
+.stat-label {
+  font-size: 12px;
+  color: #A0A0C0;
+  margin-bottom: 6px;
+}
+.stat-trend {
+  font-size: 11px;
   font-weight: 700;
-  margin-bottom: 16px;
+}
+.stat-trend.up { color: #10B981; }
+
+/* SECTION HEADERS */
+.section-header {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-bottom: 14px;
+  margin-top: 24px;
 }
+.section-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #F0F0FF;
+}
+.section-icon { font-size: 20px; }
+
+/* PLATFORM LIST */
 .platform-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 .platform-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: var(--bg-card);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 14px;
+  gap: 14px;
+  background: #12122e;
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 16px;
   padding: 14px 16px;
   transition: all 0.3s;
   cursor: pointer;
+  animation: platformEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.platform-item:nth-child(1) { animation-delay: 0.05s; }
+.platform-item:nth-child(2) { animation-delay: 0.1s; }
+.platform-item:nth-child(3) { animation-delay: 0.15s; }
+.platform-item:nth-child(4) { animation-delay: 0.2s; }
+.platform-item:nth-child(5) { animation-delay: 0.25s; }
+@keyframes platformEnter {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 .platform-item:hover {
-  border-color: rgba(0, 212, 255, 0.3);
-  transform: translateX(4px);
+  border-color: rgba(0, 212, 255, 0.2);
+  transform: translateX(6px);
+  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.1);
 }
 .platform-icon {
-  width: 42px; height: 42px;
+  width: 44px; height: 44px;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -699,18 +908,22 @@ body {
 .platform-name {
   font-size: 15px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #F0F0FF;
+  margin-bottom: 2px;
 }
 .platform-status {
   font-size: 12px;
-  color: var(--success);
+  color: #10B981;
+  font-weight: 500;
 }
 .platform-toggle {
   width: 48px; height: 26px;
-  background: var(--success);
+  background: #10B981;
   border-radius: 13px;
   position: relative;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 .platform-toggle::after {
   content: '';
@@ -719,7 +932,186 @@ body {
   border-radius: 50%;
   position: absolute;
   top: 3px; right: 3px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transition: all 0.3s;
+}
+.platform-toggle:hover { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+
+/* QUICK ACTIONS */
+.quick-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.action-btn {
+  flex: 1;
+  border: none;
+  border-radius: 18px;
+  padding: 18px 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+.action-btn:hover { transform: translateY(-4px) scale(1.02); }
+.action-btn:active { transform: scale(0.95); }
+.action-icon { font-size: 26px; margin-bottom: 6px; display: block; }
+.action-text { font-size: 12px; font-weight: 700; }
+.action-gradient-1 { background: linear-gradient(135deg, #FF1493, #6B00FF); box-shadow: 0 4px 20px rgba(255, 20, 147, 0.3); }
+.action-gradient-2 { background: linear-gradient(135deg, #00D4FF, #0A0A1A); box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3); }
+.action-gradient-3 { background: linear-gradient(135deg, #FFE600, #FF1493); box-shadow: 0 4px 20px rgba(255, 230, 0, 0.3); }
+
+/* CONTENT CARDS */
+.content-card {
+  background: #12122e;
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 14px;
+  transition: all 0.3s;
+  animation: cardEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.content-card:nth-child(1) { animation-delay: 0.1s; }
+.content-card:nth-child(2) { animation-delay: 0.2s; }
+.content-card:nth-child(3) { animation-delay: 0.3s; }
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.content-card:hover {
+  border-color: rgba(0, 212, 255, 0.15);
+  transform: translateY(-2px);
+}
+.content-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.content-platform-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+.content-platform-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #F0F0FF;
+}
+.content-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #E0E0F0;
+  margin-bottom: 14px;
+  padding: 12px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 12px;
+}
+.hashtag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.hashtag {
+  padding: 5px 12px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-radius: 20px;
+  font-size: 12px;
+  color: #00D4FF;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+.hashtag:hover {
+  background: rgba(0, 212, 255, 0.2);
+  transform: scale(1.05);
+}
+
+/* ANALYTICS */
+.analytics-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.analytics-icon {
+  width: 32px; text-align: center;
+  font-size: 20px;
+}
+.analytics-info { flex: 1; }
+.analytics-name-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+.analytics-name { color: #F0F0FF; font-weight: 600; }
+.analytics-growth { color: #10B981; font-weight: 700; }
+.analytics-track {
+  height: 8px;
+  background: #0A0A1A;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.analytics-fill {
+  height: 100%;
+  border-radius: 4px;
+  animation: barGrow 1.5s ease-out backwards;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+@keyframes barGrow {
+  from { width: 0%; }
+}
+
+/* SETTINGS */
+.settings-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #12122e;
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  transition: all 0.3s;
+}
+.settings-card:hover {
+  border-color: rgba(255,255,255,0.1);
+  transform: translateX(4px);
+}
+.settings-icon { font-size: 22px; width: 40px; text-align: center; }
+.settings-info { flex: 1; }
+.settings-name { font-size: 15px; font-weight: 600; color: #F0F0FF; }
+.settings-desc { font-size: 12px; color: #A0A0C0; margin-top: 2px; }
+.settings-arrow { font-size: 18px; color: #6B7280; }
+.settings-toggle {
+  width: 48px; height: 26px;
+  background: #10B981;
+  border-radius: 13px;
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.settings-toggle::after {
+  content: '';
+  width: 20px; height: 20px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px; right: 3px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.settings-badge {
+  padding: 4px 12px;
+  background: linear-gradient(135deg, #FF1493, #6B00FF);
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
 }
 
 /* BOTTOM NAV */
@@ -735,7 +1127,7 @@ body {
   border-top: 1px solid rgba(255,255,255,0.05);
   display: flex;
   justify-content: space-around;
-  padding: 10px 0 20px;
+  padding: 10px 0 24px;
   z-index: 100;
 }
 .nav-item {
@@ -745,182 +1137,116 @@ body {
   gap: 4px;
   cursor: pointer;
   transition: all 0.3s;
-  padding: 4px 12px;
-  border-radius: 12px;
+  padding: 6px 16px;
+  border-radius: 14px;
+  border: none;
+  background: none;
+  color: inherit;
+  font-family: 'Poppins', sans-serif;
 }
 .nav-item:hover { background: rgba(255,255,255,0.05); }
-.nav-item.active .nav-icon { color: var(--electric-blue); }
-.nav-item.active .nav-label { color: var(--electric-blue); }
+.nav-item.active .nav-icon { color: #00D4FF; text-shadow: 0 0 12px rgba(0, 212, 255, 0.5); }
+.nav-item.active .nav-label { color: #00D4FF; font-weight: 700; }
 .nav-icon {
   font-size: 22px;
-  color: var(--text-secondary);
-  transition: color 0.3s;
+  color: #6B7280;
+  transition: all 0.3s;
 }
 .nav-label {
   font-size: 11px;
-  color: var(--text-secondary);
+  color: #6B7280;
   font-weight: 500;
-  transition: color 0.3s;
+  transition: all 0.3s;
 }
 
-/* ANIMATED WAVE DIVIDER */
-.wave-divider {
-  width: 100%;
-  height: 60px;
-  position: relative;
-  overflow: hidden;
-  margin: 20px 0;
-}
-.wave-divider svg {
-  position: absolute;
-  bottom: 0;
-  width: 200%;
-  animation: wave 8s linear infinite;
-}
-@keyframes wave {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-/* LOADING ANIMATION */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  gap: 20px;
-}
-.loading-spinner {
-  width: 60px; height: 60px;
-  border: 4px solid rgba(0, 212, 255, 0.2);
-  border-top-color: var(--electric-blue);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-.loading-text {
-  font-size: 16px;
-  color: var(--text-secondary);
-  animation: loading-pulse 1.5s ease-in-out infinite;
-}
-@keyframes loading-pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
-}
-
-/* CONTENT GENERATOR */
-.gen-card {
-  background: var(--bg-card);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 20px;
-  padding: 20px;
-  margin-bottom: 16px;
-}
-.gen-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-.gen-platform-icon {
-  width: 40px; height: 40px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-}
-.gen-platform-name {
-  font-size: 16px;
-  font-weight: 600;
-}
-.gen-content {
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--text-primary);
-  margin-bottom: 12px;
-  padding: 12px;
-  background: rgba(0,0,0,0.2);
-  border-radius: 10px;
-}
-.gen-hashtags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.gen-hashtag {
-  padding: 4px 10px;
-  background: rgba(0, 212, 255, 0.1);
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  border-radius: 20px;
-  font-size: 12px;
-  color: var(--electric-blue);
-  font-weight: 600;
-}
-
-/* FLOATING ACTION BUTTON */
+/* FAB */
 .fab {
   position: fixed;
-  bottom: 90px;
+  bottom: 95px;
   right: 20px;
-  width: 56px; height: 56px;
+  width: 58px; height: 58px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--hot-pink), var(--electric-blue));
+  background: linear-gradient(135deg, #FF1493, #00D4FF);
   border: none;
   color: white;
-  font-size: 24px;
+  font-size: 26px;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(255, 20, 147, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s;
   z-index: 99;
-  animation: fab-pulse 3s ease-in-out infinite;
+  animation: fabPulse 3s ease-in-out infinite;
+  box-shadow: 0 4px 25px rgba(255, 20, 147, 0.4);
 }
-@keyframes fab-pulse {
-  0%, 100% { box-shadow: 0 4px 20px rgba(255, 20, 147, 0.4); }
-  50% { box-shadow: 0 4px 30px rgba(255, 20, 147, 0.6), 0 0 40px rgba(0, 212, 255, 0.3); }
+@keyframes fabPulse {
+  0%, 100% { box-shadow: 0 4px 25px rgba(255, 20, 147, 0.4); }
+  50% { box-shadow: 0 4px 35px rgba(255, 20, 147, 0.6), 0 0 50px rgba(0, 212, 255, 0.2); }
 }
-.fab:hover {
-  transform: scale(1.1) rotate(90deg);
+.fab:hover { transform: scale(1.12) rotate(15deg); }
+.fab:active { transform: scale(0.9); }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: #12122e;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 16px;
+  padding: 14px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #00D4FF;
+  z-index: 200;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
 }
 
-/* SCROLLBAR */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.3); border-radius: 2px; }
+/* SPACER */
+.bottom-spacer { height: 100px; }
 
 /* RESPONSIVE */
 @media (max-width: 430px) {
-  .app-container { border: none; }
+  .app-frame { border: none; }
+}
+@media (min-width: 431px) {
+  body { display: flex; align-items: center; justify-content: center; background: #050510; }
+  .app-frame { height: 90vh; border-radius: 24px; box-shadow: 0 0 60px rgba(0,0,0,0.5); }
+  .bottom-nav { border-radius: 0 0 24px 24px; }
 }
 </style>
 </head>
 <body>
 
-<!-- Animated Background -->
-<div class="bg-animation">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-  <div class="orb orb-4"></div>
-</div>
+<!-- Animated Background Orbs -->
+<div class="bg-orb orb-1"></div>
+<div class="bg-orb orb-2"></div>
+<div class="bg-orb orb-3"></div>
+<div class="bg-orb orb-4"></div>
 
-<!-- Particles -->
-<div class="particles" id="particles"></div>
+<!-- Floating Particles -->
+<div class="particles-container" id="particles"></div>
 
-<!-- App Container -->
-<div class="app-container">
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 
-  <!-- SPLASH SCREEN -->
-  <div class="screen active" id="splash-screen">
-    <div class="splash-screen">
-      <div class="character-container">
-        <!-- Black Mermaid with Blonde Hair -->
+<!-- App Frame -->
+<div class="app-frame">
+
+  <!-- ===== SPLASH SCREEN ===== -->
+  <div class="screen active" id="screen-splash">
+    <div class="splash-wrap">
+      <div class="char-scene">
+        <!-- Mermaid -->
         <div class="mermaid">
           <div class="mermaid-hair"></div>
           <div class="mermaid-face">
@@ -931,8 +1257,8 @@ body {
           <div class="mermaid-body"></div>
           <div class="mermaid-tail"></div>
         </div>
-        <!-- Human Son -->
-        <div class="human-son">
+        <!-- Son -->
+        <div class="son">
           <div class="son-head">
             <div class="son-hair"></div>
             <div class="son-eye left"></div>
@@ -941,10 +1267,12 @@ body {
           </div>
           <div class="son-shirt"></div>
           <div class="son-pants"></div>
-          <div class="son-shoes left"></div>
-          <div class="son-shoes right"></div>
+          <div class="son-shoes">
+            <div class="son-shoe"></div>
+            <div class="son-shoe"></div>
+          </div>
         </div>
-        <!-- Q-Bot Agent -->
+        <!-- Q-Bot -->
         <div class="q-bot">
           <div class="q-bot-antenna"></div>
           <div class="q-bot-body">
@@ -958,153 +1286,186 @@ body {
 
       <h1 class="splash-title">Q-Empire</h1>
       <p class="splash-subtitle">Social Autopilot</p>
-      <p class="splash-tagline">Posts to 25 platforms while you sleep</p>
+      <p class="splash-tagline">Posts to 25 platforms while you sleep. AI-powered. Fully automated.</p>
 
       <div class="badge-row">
-        <span class="badge badge-primary">🤖 AI-Powered</span>
-        <span class="badge badge-secondary">v1.0.0</span>
+        <span class="badge badge-blue">🤖 AI-Powered</span>
+        <span class="badge badge-pink">25 Platforms</span>
+        <span class="badge badge-yellow">v1.0.0</span>
       </div>
 
-      <button class="btn btn-primary" onclick="showScreen('onboarding')">Get Started ✨</button>
-      <button class="btn btn-secondary" onclick="showScreen('login')">I Already Have an Account</button>
+      <button class="btn btn-primary" onclick="goToScreen('onboarding')">✨ Get Started</button>
+      <button class="btn btn-secondary" onclick="goToScreen('login')">I Already Have an Account</button>
+
+      <div class="loading-dots">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+      </div>
     </div>
   </div>
 
-  <!-- ONBOARDING SCREEN -->
-  <div class="screen" id="onboarding-screen">
-    <div class="onboarding-slide" id="slide-1">
-      <div class="onboarding-char">
-        <div class="mermaid" style="position:relative;left:50%;transform:translateX(-50%) scale(1.5);">
-          <div class="mermaid-hair"></div>
-          <div class="mermaid-face"><div class="mermaid-eye left"></div><div class="mermaid-eye right"></div><div class="mermaid-smile"></div></div>
-          <div class="mermaid-body"></div>
-          <div class="mermaid-tail"></div>
-        </div>
-      </div>
-      <h2 class="onboarding-title">Meet Your AI Crew</h2>
-      <p class="onboarding-desc">Q-Bot, Mermaid, and Son work together to analyze your brand and create stunning content across all 25 platforms.</p>
-      <div class="dots">
-        <div class="dot active"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-      </div>
-      <button class="btn btn-primary" onclick="nextSlide()">Next →</button>
-    </div>
+  <!-- ===== ONBOARDING ===== -->
+  <div class="screen" id="screen-onboarding">
+    <div class="onboarding-wrap">
+      <button class="skip-btn" onclick="goToScreen('dashboard')">Skip</button>
 
-    <div class="onboarding-slide" id="slide-2" style="display:none;">
-      <div class="onboarding-char">
-        <div class="q-bot" style="position:relative;left:50%;transform:translateX(-50%) scale(1.5);">
+      <!-- Slide 1 -->
+      <div class="onboarding-slide active" id="slide-1">
+        <div class="char-scene">
+          <div class="mermaid" style="left:20px;top:10px;animation:mermaidSway 3s ease-in-out infinite;">
+            <div class="mermaid-hair"></div>
+            <div class="mermaid-face"><div class="mermaid-eye left"></div><div class="mermaid-eye right"></div><div class="mermaid-smile"></div></div>
+            <div class="mermaid-body"></div>
+            <div class="mermaid-tail"></div>
+          </div>
+          <div class="son" style="left:100px;bottom:5px;animation:sonBounce 2s ease-in-out infinite;">
+            <div class="son-head"><div class="son-hair"></div><div class="son-eye left"></div><div class="son-eye right"></div><div class="son-smile"></div></div>
+            <div class="son-shirt"></div>
+            <div class="son-pants"></div>
+            <div class="son-shoes"><div class="son-shoe"></div><div class="son-shoe"></div></div>
+          </div>
+          <div class="q-bot" style="right:10px;top:20px;animation:botFloat 2.5s ease-in-out infinite;">
+            <div class="q-bot-antenna"></div>
+            <div class="q-bot-body"><div class="q-bot-eye left"></div><div class="q-bot-eye right"></div></div>
+            <div class="q-bot-arm left"></div>
+            <div class="q-bot-arm right"></div>
+          </div>
+        </div>
+        <h2 class="onboarding-title">Meet Your AI Crew</h2>
+        <p class="onboarding-desc">Q-Bot, Mermaid, and Son work together to analyze your brand and create stunning content across all 25 platforms.</p>
+      </div>
+
+      <!-- Slide 2 -->
+      <div class="onboarding-slide" id="slide-2">
+        <div class="char-scene">
+          <div class="q-bot" style="left:50%;transform:translateX(-50%) scale(1.5);animation:botFloat 2s ease-in-out infinite;">
+            <div class="q-bot-antenna"></div>
+            <div class="q-bot-body"><div class="q-bot-eye left"></div><div class="q-bot-eye right"></div></div>
+            <div class="q-bot-arm left"></div>
+            <div class="q-bot-arm right"></div>
+          </div>
+        </div>
+        <h2 class="onboarding-title">Autopilot Mode</h2>
+        <p class="onboarding-desc">Set your schedule once and let Q-Bot handle the rest. Your content goes live while you focus on what matters most.</p>
+      </div>
+
+      <!-- Slide 3 -->
+      <div class="onboarding-slide" id="slide-3">
+        <div class="char-scene">
+          <div class="mermaid" style="left:50%;transform:translateX(-50%) scale(1.5);animation:mermaidSway 3s ease-in-out infinite;">
+            <div class="mermaid-hair"></div>
+            <div class="mermaid-face"><div class="mermaid-eye left"></div><div class="mermaid-eye right"></div><div class="mermaid-smile"></div></div>
+            <div class="mermaid-body"></div>
+            <div class="mermaid-tail"></div>
+          </div>
+        </div>
+        <h2 class="onboarding-title">Track Everything</h2>
+        <p class="onboarding-desc">Real-time analytics across all platforms. See what works, optimize your strategy, and grow faster than ever.</p>
+      </div>
+
+      <!-- Slide 4 -->
+      <div class="onboarding-slide" id="slide-4">
+        <div class="char-scene">
+          <div class="son" style="left:50%;transform:translateX(-50%) scale(1.5);animation:sonBounce 2s ease-in-out infinite;">
+            <div class="son-head"><div class="son-hair"></div><div class="son-eye left"></div><div class="son-eye right"></div><div class="son-smile"></div></div>
+            <div class="son-shirt"></div>
+            <div class="son-pants"></div>
+            <div class="son-shoes"><div class="son-shoe"></div><div class="son-shoe"></div></div>
+          </div>
+        </div>
+        <h2 class="onboarding-title">25 Platforms, One App</h2>
+        <p class="onboarding-desc">Facebook, Instagram, X, TikTok, LinkedIn, and 20 more. All connected, all automated, all in one place.</p>
+      </div>
+
+      <div class="onboarding-dots">
+        <div class="onboarding-dot active" onclick="goToSlide(1)"></div>
+        <div class="onboarding-dot" onclick="goToSlide(2)"></div>
+        <div class="onboarding-dot" onclick="goToSlide(3)"></div>
+        <div class="onboarding-dot" onclick="goToSlide(4)"></div>
+      </div>
+
+      <button class="btn btn-primary" id="onboarding-btn" onclick="nextSlide()">Next →</button>
+    </div>
+  </div>
+
+  <!-- ===== LOGIN ===== -->
+  <div class="screen" id="screen-login">
+    <div class="login-wrap">
+      <div class="char-scene" style="height:140px;">
+        <div class="q-bot" style="left:50%;transform:translateX(-50%) scale(1.3);animation:botFloat 2.5s ease-in-out infinite;">
           <div class="q-bot-antenna"></div>
           <div class="q-bot-body"><div class="q-bot-eye left"></div><div class="q-bot-eye right"></div></div>
           <div class="q-bot-arm left"></div>
           <div class="q-bot-arm right"></div>
         </div>
       </div>
-      <h2 class="onboarding-title">Autopilot Mode</h2>
-      <p class="onboarding-desc">Set your schedule once and let Q-Bot handle the rest. Your content goes live while you focus on what matters most.</p>
-      <div class="dots">
-        <div class="dot"></div>
-        <div class="dot active"></div>
-        <div class="dot"></div>
-      </div>
-      <button class="btn btn-primary" onclick="nextSlide()">Next →</button>
-    </div>
+      <h2 style="font-size:30px;font-weight:800;margin-bottom:6px;background:linear-gradient(90deg,#FFE600,#FF1493);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Welcome Back!</h2>
+      <p style="color:#A0A0C0;margin-bottom:36px;font-size:15px;">Sign in to your Q-Empire account</p>
 
-    <div class="onboarding-slide" id="slide-3" style="display:none;">
-      <div class="onboarding-char">
-        <div class="human-son" style="position:relative;left:50%;transform:translateX(-50%) scale(1.5);">
-          <div class="son-head"><div class="son-hair"></div><div class="son-eye left"></div><div class="son-eye right"></div><div class="son-smile"></div></div>
-          <div class="son-shirt"></div>
-          <div class="son-pants"></div>
-          <div class="son-shoes left"></div>
-          <div class="son-shoes right"></div>
-        </div>
-      </div>
-      <h2 class="onboarding-title">Track Everything</h2>
-      <p class="onboarding-desc">Real-time analytics across all platforms. See what works, optimize your strategy, and grow faster than ever.</p>
-      <div class="dots">
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot active"></div>
-      </div>
-      <button class="btn btn-primary" onclick="showScreen('dashboard')">Launch Q-Empire 🚀</button>
+      <input type="email" class="input-field" placeholder="Email address" value="you@qempire.com">
+      <input type="password" class="input-field" placeholder="Password" value="••••••••">
+      <button class="btn btn-primary" onclick="goToScreen('dashboard')" style="margin-top:8px;">🔐 Sign In</button>
+      <button class="btn btn-secondary" onclick="goToScreen('splash')">← Back to Start</button>
     </div>
   </div>
 
-  <!-- LOGIN SCREEN -->
-  <div class="screen" id="login-screen">
-    <div style="padding-top:60px;text-align:center;">
-      <div class="character-container" style="margin:0 auto 30px;height:140px;">
-        <div class="q-bot" style="left:50%;transform:translateX(-50%) scale(1.3);">
-          <div class="q-bot-antenna"></div>
-          <div class="q-bot-body"><div class="q-bot-eye left"></div><div class="q-bot-eye right"></div></div>
-          <div class="q-bot-arm left"></div>
-          <div class="q-bot-arm right"></div>
-        </div>
-      </div>
-      <h2 style="font-size:28px;font-weight:700;margin-bottom:8px;background:linear-gradient(90deg,var(--electric-yellow),var(--hot-pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Welcome Back!</h2>
-      <p style="color:var(--text-secondary);margin-bottom:40px;">Sign in to your Q-Empire account</p>
-
-      <div style="display:flex;flex-direction:column;gap:16px;">
-        <input type="email" placeholder="Email address" style="padding:16px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);background:var(--bg-card);color:var(--text-primary);font-family:'Poppins',sans-serif;font-size:15px;outline:none;transition:all 0.3s;" onfocus="this.style.borderColor='var(--electric-blue)';this.style.boxShadow='0 0 10px rgba(0,212,255,0.2)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.boxShadow='none'">
-        <input type="password" placeholder="Password" style="padding:16px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);background:var(--bg-card);color:var(--text-primary);font-family:'Poppins',sans-serif;font-size:15px;outline:none;transition:all 0.3s;" onfocus="this.style.borderColor='var(--electric-blue)';this.style.boxShadow='0 0 10px rgba(0,212,255,0.2)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.boxShadow='none'">
-        <button class="btn btn-primary" onclick="showScreen('dashboard')">Sign In 🔐</button>
-        <button class="btn btn-secondary" onclick="showScreen('splash')">← Back to Start</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- DASHBOARD SCREEN -->
-  <div class="screen" id="dashboard-screen">
+  <!-- ===== DASHBOARD ===== -->
+  <div class="screen" id="screen-dashboard">
     <div class="dashboard-header">
       <div>
-        <p style="font-size:13px;color:var(--text-secondary);">Good Evening 👋</p>
-        <h1 class="dashboard-greeting">Q-Empire <span>Dashboard</span></h1>
+        <p class="dashboard-greeting">Good Evening 👋</p>
+        <h1 class="dashboard-title">Q-Empire <span>Dashboard</span></h1>
       </div>
-      <div class="profile-pic">🧜🏾‍♀️</div>
+      <div class="profile-avatar">🧜🏾‍♀️</div>
     </div>
 
     <!-- Autopilot Card -->
     <div class="autopilot-card">
       <div class="autopilot-header">
-        <div class="autopilot-title">🤖 Autopilot</div>
+        <div class="autopilot-title"><span class="icon">🚀</span> Autopilot</div>
         <div class="autopilot-status"><div class="status-dot"></div> ACTIVE</div>
       </div>
       <p class="autopilot-info">Next post in <strong>2h 14m</strong> • 18 platforms connected • <strong>847 posts</strong> queued</p>
+      <div class="progress-bar-bg"><div class="progress-bar-fill"></div></div>
+      <p class="progress-text">72% of daily quota used</p>
     </div>
 
-    <!-- Stats Grid -->
+    <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card blue">
         <div class="stat-icon">📊</div>
         <div class="stat-value">2.4K</div>
         <div class="stat-label">Posts This Month</div>
-        <div class="stat-trend up">↑ 34% vs last month</div>
+        <div class="stat-trend up">↑ +34%</div>
       </div>
       <div class="stat-card pink">
         <div class="stat-icon">👁️</div>
         <div class="stat-value">89K</div>
         <div class="stat-label">Total Reach</div>
-        <div class="stat-trend up">↑ 52% vs last month</div>
+        <div class="stat-trend up">↑ +52%</div>
       </div>
       <div class="stat-card yellow">
         <div class="stat-icon">❤️</div>
         <div class="stat-value">12.3K</div>
         <div class="stat-label">Engagements</div>
-        <div class="stat-trend up">↑ 28% vs last month</div>
+        <div class="stat-trend up">↑ +28%</div>
       </div>
       <div class="stat-card green">
         <div class="stat-icon">🔗</div>
         <div class="stat-value">18/25</div>
         <div class="stat-label">Platforms Active</div>
-        <div class="stat-trend up">↑ 3 new this week</div>
+        <div class="stat-trend up">↑ +3 new</div>
       </div>
     </div>
 
-    <!-- Connected Platforms -->
-    <h3 class="section-title">🔗 Connected Platforms</h3>
+    <!-- Platforms -->
+    <div class="section-header">
+      <span class="section-icon">🔗</span>
+      <span class="section-title">Connected Platforms</span>
+    </div>
     <div class="platform-list">
-      <div class="platform-item">
+      <div class="platform-item" onclick="showToast('Facebook settings opened')">
         <div class="platform-icon" style="background:linear-gradient(135deg,#1877F2,#0D5CB6);">📘</div>
         <div class="platform-info">
           <div class="platform-name">Facebook</div>
@@ -1112,7 +1473,7 @@ body {
         </div>
         <div class="platform-toggle"></div>
       </div>
-      <div class="platform-item">
+      <div class="platform-item" onclick="showToast('Instagram settings opened')">
         <div class="platform-icon" style="background:linear-gradient(135deg,#E4405F,#C13584);">📸</div>
         <div class="platform-info">
           <div class="platform-name">Instagram</div>
@@ -1120,7 +1481,7 @@ body {
         </div>
         <div class="platform-toggle"></div>
       </div>
-      <div class="platform-item">
+      <div class="platform-item" onclick="showToast('X settings opened')">
         <div class="platform-icon" style="background:linear-gradient(135deg,#1DA1F2,#0D8BD9);">🐦</div>
         <div class="platform-info">
           <div class="platform-name">X / Twitter</div>
@@ -1128,7 +1489,7 @@ body {
         </div>
         <div class="platform-toggle"></div>
       </div>
-      <div class="platform-item">
+      <div class="platform-item" onclick="showToast('LinkedIn settings opened')">
         <div class="platform-icon" style="background:linear-gradient(135deg,#0A66C2,#0077B5);">💼</div>
         <div class="platform-info">
           <div class="platform-name">LinkedIn</div>
@@ -1136,7 +1497,7 @@ body {
         </div>
         <div class="platform-toggle"></div>
       </div>
-      <div class="platform-item">
+      <div class="platform-item" onclick="showToast('TikTok settings opened')">
         <div class="platform-icon" style="background:linear-gradient(135deg,#000000,#333333);">🎵</div>
         <div class="platform-info">
           <div class="platform-name">TikTok</div>
@@ -1146,62 +1507,82 @@ body {
       </div>
     </div>
 
-    <div style="height:100px;"></div>
+    <!-- Quick Actions -->
+    <div class="section-header">
+      <span class="section-icon">⚡</span>
+      <span class="section-title">Quick Actions</span>
+    </div>
+    <div class="quick-actions">
+      <button class="action-btn action-gradient-1" onclick="showToast('🤖 Q-Bot is generating fresh content!')">
+        <span class="action-icon">✨</span>
+        <span class="action-text">Generate</span>
+      </button>
+      <button class="action-btn action-gradient-2" onclick="showToast('🔍 Analyzing your website...')">
+        <span class="action-icon">🌐</span>
+        <span class="action-text">Analyze</span>
+      </button>
+      <button class="action-btn action-gradient-3" onclick="showToast('📅 Opening scheduler...')">
+        <span class="action-icon">⏰</span>
+        <span class="action-text">Schedule</span>
+      </button>
+    </div>
+
+    <div class="bottom-spacer"></div>
   </div>
 
-  <!-- CONTENT SCREEN -->
-  <div class="screen" id="content-screen">
-    <div style="padding-top:10px;">
-      <h1 style="font-size:24px;font-weight:700;margin-bottom:20px;">✨ AI Generated Content</h1>
+  <!-- ===== CONTENT ===== -->
+  <div class="screen" id="screen-content">
+    <div style="padding-top:16px;">
+      <h1 style="font-size:26px;font-weight:800;margin-bottom:20px;">✨ AI Generated Content</h1>
 
-      <div class="gen-card">
-        <div class="gen-header">
-          <div class="gen-platform-icon" style="background:linear-gradient(135deg,#1877F2,#0D5CB6);">📘</div>
-          <div class="gen-platform-name">Facebook</div>
+      <div class="content-card">
+        <div class="content-header">
+          <div class="content-platform-icon" style="background:linear-gradient(135deg,#1877F2,#0D5CB6);">📘</div>
+          <div class="content-platform-name">Facebook</div>
         </div>
-        <div class="gen-content">🚀 Big news from Q-Empire! We're revolutionizing how businesses approach social media with AI-powered automation. Ready to scale your presence? Drop a 🔥 if you're ready!</div>
-        <div class="gen-hashtags">
-          <span class="gen-hashtag">#AI</span>
-          <span class="gen-hashtag">#SocialMedia</span>
-          <span class="gen-hashtag">#Growth</span>
-          <span class="gen-hashtag">#Automation</span>
+        <div class="content-text">🚀 Big news from Q-Empire! We're revolutionizing how businesses approach social media with AI-powered automation. Ready to scale your presence? Drop a 🔥 if you're ready!</div>
+        <div class="hashtag-list">
+          <span class="hashtag">#AI</span>
+          <span class="hashtag">#SocialMedia</span>
+          <span class="hashtag">#Growth</span>
+          <span class="hashtag">#Automation</span>
         </div>
       </div>
 
-      <div class="gen-card">
-        <div class="gen-header">
-          <div class="gen-platform-icon" style="background:linear-gradient(135deg,#E4405F,#C13584);">📸</div>
-          <div class="gen-platform-name">Instagram</div>
+      <div class="content-card">
+        <div class="content-header">
+          <div class="content-platform-icon" style="background:linear-gradient(135deg,#E4405F,#C13584);">📸</div>
+          <div class="content-platform-name">Instagram</div>
         </div>
-        <div class="gen-content">✨ The future of marketing is here ✨<br><br>Q-Empire helps you post to 25 platforms while you sleep 😴🚀<br><br>No more manual posting. No more missed opportunities.<br><br>Link in bio 👆</div>
-        <div class="gen-hashtags">
-          <span class="gen-hashtag">#AI</span>
-          <span class="gen-hashtag">#Automation</span>
-          <span class="gen-hashtag">#SocialMedia</span>
-          <span class="gen-hashtag">#Entrepreneur</span>
-        </div>
-      </div>
-
-      <div class="gen-card">
-        <div class="gen-header">
-          <div class="gen-platform-icon" style="background:linear-gradient(135deg,#1DA1F2,#0D8BD9);">🐦</div>
-          <div class="gen-platform-name">X / Twitter</div>
-        </div>
-        <div class="gen-content">🤖 AI just replaced my social media manager.<br><br>Q-Empire posts to 25 platforms on autopilot.<br><br>I just set it and sleep.<br><br>Game changer. 🚀</div>
-        <div class="gen-hashtags">
-          <span class="gen-hashtag">#AITools</span>
-          <span class="gen-hashtag">#Automation</span>
+        <div class="content-text">✨ The future of marketing is here ✨<br><br>Q-Empire helps you post to 25 platforms while you sleep 😴🚀<br><br>No more manual posting. No more missed opportunities.<br><br>Link in bio 👆</div>
+        <div class="hashtag-list">
+          <span class="hashtag">#AI</span>
+          <span class="hashtag">#Automation</span>
+          <span class="hashtag">#SocialMedia</span>
+          <span class="hashtag">#Entrepreneur</span>
         </div>
       </div>
 
-      <div style="height:100px;"></div>
+      <div class="content-card">
+        <div class="content-header">
+          <div class="content-platform-icon" style="background:linear-gradient(135deg,#1DA1F2,#0D8BD9);">🐦</div>
+          <div class="content-platform-name">X / Twitter</div>
+        </div>
+        <div class="content-text">🤖 AI just replaced my social media manager.<br><br>Q-Empire posts to 25 platforms on autopilot.<br><br>I just set it and sleep.<br><br>Game changer. 🚀</div>
+        <div class="hashtag-list">
+          <span class="hashtag">#AITools</span>
+          <span class="hashtag">#Automation</span>
+        </div>
+      </div>
+
+      <div class="bottom-spacer"></div>
     </div>
   </div>
 
-  <!-- ANALYTICS SCREEN -->
-  <div class="screen" id="analytics-screen">
-    <div style="padding-top:10px;">
-      <h1 style="font-size:24px;font-weight:700;margin-bottom:20px;">📊 Analytics</h1>
+  <!-- ===== ANALYTICS ===== -->
+  <div class="screen" id="screen-analytics">
+    <div style="padding-top:16px;">
+      <h1 style="font-size:26px;font-weight:800;margin-bottom:20px;">📊 Analytics</h1>
 
       <div class="stats-grid">
         <div class="stat-card blue">
@@ -1214,174 +1595,169 @@ body {
           <div class="stat-icon">🎯</div>
           <div class="stat-value">4.2%</div>
           <div class="stat-label">Engagement Rate</div>
-          <div class="stat-trend up">↑ 0.8% this month</div>
+          <div class="stat-trend up">↑ +0.8% this month</div>
         </div>
       </div>
 
-      <div class="gen-card">
-        <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">🏆 Top Performing Platforms</h3>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:30px;text-align:center;font-size:20px;">📸</div>
-            <div style="flex:1;">
-              <div style="display:flex;justify-content:space-between;font-size:14px;"><span>Instagram</span><span style="color:var(--success);font-weight:600;">+67%</span></div>
-              <div style="height:6px;background:var(--bg-surface);border-radius:3px;margin-top:4px;overflow:hidden;">
-                <div style="width:85%;height:100%;background:linear-gradient(90deg,var(--hot-pink),#FF6B9D);border-radius:3px;animation:barGrow 1s ease-out;"></div>
-              </div>
-            </div>
+      <div class="section-header">
+        <span class="section-icon">🏆</span>
+        <span class="section-title">Top Performing Platforms</span>
+      </div>
+
+      <div style="background:#12122e;border-radius:18px;padding:18px;border:1px solid rgba(255,255,255,0.04);">
+        <div class="analytics-bar">
+          <div class="analytics-icon">📸</div>
+          <div class="analytics-info">
+            <div class="analytics-name-row"><span class="analytics-name">Instagram</span><span class="analytics-growth">+67%</span></div>
+            <div class="analytics-track"><div class="analytics-fill" style="width:85%;background:linear-gradient(90deg,#E4405F,#C13584);"></div></div>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:30px;text-align:center;font-size:20px;">🐦</div>
-            <div style="flex:1;">
-              <div style="display:flex;justify-content:space-between;font-size:14px;"><span>X / Twitter</span><span style="color:var(--success);font-weight:600;">+45%</span></div>
-              <div style="height:6px;background:var(--bg-surface);border-radius:3px;margin-top:4px;overflow:hidden;">
-                <div style="width:72%;height:100%;background:linear-gradient(90deg,var(--electric-blue),var(--deep-purple));border-radius:3px;animation:barGrow 1.2s ease-out;"></div>
-              </div>
-            </div>
+        </div>
+        <div class="analytics-bar">
+          <div class="analytics-icon">🐦</div>
+          <div class="analytics-info">
+            <div class="analytics-name-row"><span class="analytics-name">X / Twitter</span><span class="analytics-growth">+45%</span></div>
+            <div class="analytics-track"><div class="analytics-fill" style="width:72%;background:linear-gradient(90deg,#1DA1F2,#0D8BD9);"></div></div>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:30px;text-align:center;font-size:20px;">📘</div>
-            <div style="flex:1;">
-              <div style="display:flex;justify-content:space-between;font-size:14px;"><span>Facebook</span><span style="color:var(--success);font-weight:600;">+38%</span></div>
-              <div style="height:6px;background:var(--bg-surface);border-radius:3px;margin-top:4px;overflow:hidden;">
-                <div style="width:65%;height:100%;background:linear-gradient(90deg,#1877F2,#0D5CB6);border-radius:3px;animation:barGrow 1.4s ease-out;"></div>
-              </div>
-            </div>
+        </div>
+        <div class="analytics-bar">
+          <div class="analytics-icon">📘</div>
+          <div class="analytics-info">
+            <div class="analytics-name-row"><span class="analytics-name">Facebook</span><span class="analytics-growth">+38%</span></div>
+            <div class="analytics-track"><div class="analytics-fill" style="width:65%;background:linear-gradient(90deg,#1877F2,#0D5CB6);"></div></div>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:30px;text-align:center;font-size:20px;">💼</div>
-            <div style="flex:1;">
-              <div style="display:flex;justify-content:space-between;font-size:14px;"><span>LinkedIn</span><span style="color:var(--success);font-weight:600;">+29%</span></div>
-              <div style="height:6px;background:var(--bg-surface);border-radius:3px;margin-top:4px;overflow:hidden;">
-                <div style="width:52%;height:100%;background:linear-gradient(90deg,#0A66C2,#0077B5);border-radius:3px;animation:barGrow 1.6s ease-out;"></div>
-              </div>
-            </div>
+        </div>
+        <div class="analytics-bar">
+          <div class="analytics-icon">💼</div>
+          <div class="analytics-info">
+            <div class="analytics-name-row"><span class="analytics-name">LinkedIn</span><span class="analytics-growth">+29%</span></div>
+            <div class="analytics-track"><div class="analytics-fill" style="width:52%;background:linear-gradient(90deg,#0A66C2,#0077B5);"></div></div>
           </div>
         </div>
       </div>
 
-      <div style="height:100px;"></div>
+      <div class="bottom-spacer"></div>
     </div>
   </div>
 
-  <!-- SETTINGS SCREEN -->
-  <div class="screen" id="settings-screen">
-    <div style="padding-top:10px;">
-      <h1 style="font-size:24px;font-weight:700;margin-bottom:20px;">⚙️ Settings</h1>
+  <!-- ===== SETTINGS ===== -->
+  <div class="screen" id="screen-settings">
+    <div style="padding-top:16px;">
+      <h1 style="font-size:26px;font-weight:800;margin-bottom:20px;">⚙️ Settings</h1>
 
-      <div class="gen-card" style="display:flex;align-items:center;gap:14px;">
-        <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--hot-pink),var(--electric-blue));display:flex;align-items:center;justify-content:center;font-size:24px;">🧜🏾‍♀️</div>
-        <div style="flex:1;">
-          <div style="font-size:16px;font-weight:600;">Q-Empire User</div>
-          <div style="font-size:13px;color:var(--text-secondary);">Pro Plan • 18 platforms</div>
+      <div class="settings-card" style="background:linear-gradient(135deg,rgba(255,20,147,0.1),rgba(0,212,255,0.1));border-color:rgba(255,20,147,0.2);">
+        <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#FF1493,#00D4FF);display:flex;align-items:center;justify-content:center;font-size:24px;">🧜🏾‍♀️</div>
+        <div class="settings-info">
+          <div class="settings-name">Q-Empire User</div>
+          <div class="settings-desc">Pro Plan • 18 platforms active</div>
         </div>
-        <div style="font-size:20px;color:var(--electric-yellow);">👑</div>
+        <div class="settings-badge">PRO</div>
       </div>
 
-      <div style="margin-top:20px;display:flex;flex-direction:column;gap:12px;">
-        <div class="platform-item" style="cursor:default;">
-          <div style="font-size:20px;">🔔</div>
-          <div class="platform-info"><div class="platform-name">Notifications</div></div>
-          <div class="platform-toggle"></div>
+      <div style="margin-top:20px;display:flex;flex-direction:column;gap:10px;">
+        <div class="settings-card" onclick="showToast('🔔 Notifications toggled')">
+          <div class="settings-icon">🔔</div>
+          <div class="settings-info"><div class="settings-name">Notifications</div></div>
+          <div class="settings-toggle"></div>
         </div>
-        <div class="platform-item" style="cursor:default;">
-          <div style="font-size:20px;">🌙</div>
-          <div class="platform-info"><div class="platform-name">Dark Mode</div></div>
-          <div class="platform-toggle"></div>
+        <div class="settings-card" onclick="showToast('🌙 Dark mode is always on!')">
+          <div class="settings-icon">🌙</div>
+          <div class="settings-info"><div class="settings-name">Dark Mode</div></div>
+          <div class="settings-toggle"></div>
         </div>
-        <div class="platform-item" style="cursor:default;">
-          <div style="font-size:20px;">🤖</div>
-          <div class="platform-info"><div class="platform-name">AI Autopilot</div></div>
-          <div class="platform-toggle"></div>
+        <div class="settings-card" onclick="showToast('🤖 Autopilot is running!')">
+          <div class="settings-icon">🤖</div>
+          <div class="settings-info"><div class="settings-name">AI Autopilot</div></div>
+          <div class="settings-toggle"></div>
         </div>
-        <div class="platform-item" style="cursor:default;">
-          <div style="font-size:20px;">💳</div>
-          <div class="platform-info"><div class="platform-name">Subscription</div></div>
-          <div style="font-size:13px;color:var(--electric-blue);font-weight:600;">Pro</div>
+        <div class="settings-card" onclick="showToast('💳 Opening subscription...')">
+          <div class="settings-icon">💳</div>
+          <div class="settings-info"><div class="settings-name">Subscription</div></div>
+          <div class="settings-badge">PRO</div>
         </div>
-        <div class="platform-item" style="cursor:default;">
-          <div style="font-size:20px;">❓</div>
-          <div class="platform-info"><div class="platform-name">Help & Support</div></div>
-          <div style="font-size:20px;color:var(--text-secondary);">→</div>
+        <div class="settings-card" onclick="showToast('❓ Opening help center...')">
+          <div class="settings-icon">❓</div>
+          <div class="settings-info"><div class="settings-name">Help & Support</div></div>
+          <div class="settings-arrow">→</div>
         </div>
-        <div class="platform-item" style="cursor:default;">
-          <div style="font-size:20px;">🚪</div>
-          <div class="platform-info"><div class="platform-name" style="color:#EF4444;">Sign Out</div></div>
+        <div class="settings-card" onclick="showToast('👋 Signed out successfully')" style="cursor:pointer;">
+          <div class="settings-icon">🚪</div>
+          <div class="settings-info"><div class="settings-name" style="color:#EF4444;">Sign Out</div></div>
         </div>
       </div>
 
-      <div style="height:100px;"></div>
+      <div class="bottom-spacer"></div>
     </div>
   </div>
 
-  <!-- BOTTOM NAVIGATION -->
+  <!-- BOTTOM NAV -->
   <nav class="bottom-nav" id="bottom-nav" style="display:none;">
-    <div class="nav-item active" onclick="showScreen('dashboard')">
+    <button class="nav-item active" onclick="goToScreen('dashboard')">
       <span class="nav-icon">⊞</span>
       <span class="nav-label">Dashboard</span>
-    </div>
-    <div class="nav-item" onclick="showScreen('content')">
+    </button>
+    <button class="nav-item" onclick="goToScreen('content')">
       <span class="nav-icon">✎</span>
       <span class="nav-label">Content</span>
-    </div>
-    <div class="nav-item" onclick="showScreen('analytics')">
+    </button>
+    <button class="nav-item" onclick="goToScreen('analytics')">
       <span class="nav-icon">📊</span>
       <span class="nav-label">Analytics</span>
-    </div>
-    <div class="nav-item" onclick="showScreen('settings')">
+    </button>
+    <button class="nav-item" onclick="goToScreen('settings')">
       <span class="nav-icon">⚙</span>
       <span class="nav-label">Settings</span>
-    </div>
+    </button>
   </nav>
 
-  <!-- FLOATING ACTION BUTTON -->
-  <button class="fab" id="fab" style="display:none;" onclick="alert('🤖 Q-Bot is generating fresh content for all 18 platforms!')">✨</button>
+  <!-- FAB -->
+  <button class="fab" id="fab" style="display:none;" onclick="showToast('🤖 Q-Bot is generating fresh content for all 18 platforms!')">✨</button>
 
 </div>
 
 <script>
 // Generate particles
 const particlesContainer = document.getElementById('particles');
-for (let i = 0; i < 30; i++) {
+const particleColors = ['#FFE600', '#FF1493', '#00D4FF', '#00FFFF'];
+for (let i = 0; i < 40; i++) {
   const p = document.createElement('div');
   p.className = 'particle';
+  const size = 3 + Math.random() * 5;
+  p.style.width = size + 'px';
+  p.style.height = size + 'px';
   p.style.left = Math.random() * 100 + '%';
-  p.style.animationDelay = Math.random() * 6 + 's';
-  p.style.animationDuration = (4 + Math.random() * 4) + 's';
-  const colors = ['var(--electric-yellow)', 'var(--hot-pink)', 'var(--electric-blue)', 'var(--neon-cyan)'];
-  p.style.background = colors[Math.floor(Math.random() * colors.length)];
+  p.style.animationDelay = Math.random() * 8 + 's';
+  p.style.animationDuration = (5 + Math.random() * 6) + 's';
+  p.style.background = particleColors[Math.floor(Math.random() * particleColors.length)];
+  p.style.boxShadow = `0 0 ${size * 2}px ${p.style.background}`;
   particlesContainer.appendChild(p);
 }
 
+// Screen navigation
 let currentSlide = 1;
+const totalSlides = 4;
 
-function showScreen(screenName) {
+function goToScreen(screenName) {
   // Hide all screens
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
 
-  // Show target screen
-  const screenMap = {
-    'splash': 'splash-screen',
-    'onboarding': 'onboarding-screen',
-    'login': 'login-screen',
-    'dashboard': 'dashboard-screen',
-    'content': 'content-screen',
-    'analytics': 'analytics-screen',
-    'settings': 'settings-screen'
-  };
-
-  const target = document.getElementById(screenMap[screenName] || screenName + '-screen');
+  // Show target
+  const target = document.getElementById('screen-' + screenName);
   if (target) {
-    target.classList.add('active');
     target.style.display = 'block';
+    // Force reflow for animation
+    void target.offsetWidth;
+    target.classList.add('active');
   }
 
-  // Show/hide bottom nav and fab
+  // Show/hide nav and fab
   const showNav = ['dashboard', 'content', 'analytics', 'settings'].includes(screenName);
   document.getElementById('bottom-nav').style.display = showNav ? 'flex' : 'none';
   document.getElementById('fab').style.display = showNav ? 'flex' : 'none';
 
-  // Update nav active state
+  // Update nav active
   if (showNav) {
     document.querySelectorAll('.nav-item').forEach((item, idx) => {
       item.classList.remove('active');
@@ -1390,31 +1766,70 @@ function showScreen(screenName) {
     });
   }
 
-  window.scrollTo(0, 0);
+  // Scroll to top
+  const activeScreen = document.querySelector('.screen.active');
+  if (activeScreen) activeScreen.scrollTop = 0;
 }
 
 function nextSlide() {
-  document.getElementById('slide-' + currentSlide).style.display = 'none';
-  currentSlide++;
-  if (currentSlide > 3) {
-    showScreen('dashboard');
-    return;
+  if (currentSlide < totalSlides) {
+    document.getElementById('slide-' + currentSlide).classList.remove('active');
+    currentSlide++;
+    document.getElementById('slide-' + currentSlide).classList.add('active');
+
+    // Update dots
+    document.querySelectorAll('.onboarding-dot').forEach((dot, idx) => {
+      dot.classList.toggle('active', idx + 1 === currentSlide);
+    });
+
+    // Update button
+    const btn = document.getElementById('onboarding-btn');
+    if (currentSlide === totalSlides) {
+      btn.innerHTML = '🚀 Launch Q-Empire';
+      btn.onclick = () => goToScreen('dashboard');
+    }
   }
-  document.getElementById('slide-' + currentSlide).style.display = 'block';
 }
 
-// Auto-hide splash after 4 seconds
-setTimeout(() => {
-  const splash = document.getElementById('splash-screen');
-  if (splash.classList.contains('active')) {
-    // Keep it, let user click
+function goToSlide(n) {
+  document.getElementById('slide-' + currentSlide).classList.remove('active');
+  currentSlide = n;
+  document.getElementById('slide-' + currentSlide).classList.add('active');
+  document.querySelectorAll('.onboarding-dot').forEach((dot, idx) => {
+    dot.classList.toggle('active', idx + 1 === currentSlide);
+  });
+  const btn = document.getElementById('onboarding-btn');
+  if (currentSlide === totalSlides) {
+    btn.innerHTML = '🚀 Launch Q-Empire';
+    btn.onclick = () => goToScreen('dashboard');
+  } else {
+    btn.innerHTML = 'Next →';
+    btn.onclick = nextSlide;
   }
-}, 4000);
+}
 
-// Keyboard navigation
+// Toast
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// Keyboard nav
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowRight' && document.getElementById('onboarding-screen').classList.contains('active')) {
+  if (e.key === 'ArrowRight' && document.getElementById('screen-onboarding').classList.contains('active')) {
     nextSlide();
+  }
+});
+
+// Swipe support for onboarding
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; });
+document.addEventListener('touchend', e => {
+  const touchEndX = e.changedTouches[0].screenX;
+  if (document.getElementById('screen-onboarding').classList.contains('active')) {
+    if (touchStartX - touchEndX > 50) nextSlide();
   }
 });
 </script>
