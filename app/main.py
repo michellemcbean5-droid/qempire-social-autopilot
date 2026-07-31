@@ -20,6 +20,7 @@ from app.services.ai_engine import ai_engine
 from app.services.website_analyzer import website_analyzer
 from app.services.post_manager import post_manager
 from app.services.notifications import notification_service
+from app.api.health import router as health_router
 
 # Configure logging
 logger.remove()
@@ -43,6 +44,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+# Include health router
+app.include_router(health_router)
 
 # ============================================================
 # REQUEST/RESPONSE MODELS
