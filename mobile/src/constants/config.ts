@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import * as Notifications from 'expo-notifications';
 
 export const API_BASE_URL = __DEV__ 
   ? 'http://localhost:8000/api'
@@ -128,11 +129,31 @@ export const DEEP_LINKS = {
 
 export const NOTIFICATION_CONFIG = {
   categories: [
-    { identifier: 'post_success', name: 'Post Published', importance: Notifications.AndroidImportance.HIGH },
-    { identifier: 'post_failure', name: 'Post Failed', importance: Notifications.AndroidImportance.HIGH },
-    { identifier: 'autopilot_complete', name: 'Autopilot Complete', importance: Notifications.AndroidImportance.DEFAULT },
-    { identifier: 'subscription', name: 'Subscription', importance: Notifications.AndroidImportance.DEFAULT },
-    { identifier: 'system', name: 'System', importance: Notifications.AndroidImportance.LOW },
+    { 
+      identifier: 'post_success', 
+      name: 'Post Published', 
+      importance: Notifications.AndroidImportance.HIGH 
+    },
+    { 
+      identifier: 'post_failure', 
+      name: 'Post Failed', 
+      importance: Notifications.AndroidImportance.HIGH 
+    },
+    { 
+      identifier: 'autopilot_complete', 
+      name: 'Autopilot Complete', 
+      importance: Notifications.AndroidImportance.DEFAULT 
+    },
+    { 
+      identifier: 'subscription', 
+      name: 'Subscription', 
+      importance: Notifications.AndroidImportance.DEFAULT 
+    },
+    { 
+      identifier: 'system', 
+      name: 'System', 
+      importance: Notifications.AndroidImportance.LOW 
+    },
   ],
 };
 
