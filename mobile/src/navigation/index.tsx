@@ -3,7 +3,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { useColorScheme } from 'react-native';
 
 import { useAuthStore } from '@/store/authStore';
 import { useSubscriptionStore } from '@/store/subscriptionStore';
@@ -62,8 +61,6 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 function MainTabNavigator() {
-  const { tier } = useSubscriptionStore();
-
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -107,31 +104,11 @@ function MainTabNavigator() {
         },
       })}
     >
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-        options={{ title: 'Dashboard' }}
-      />
-      <Tab.Screen
-        name="Platforms"
-        component={PlatformsScreen}
-        options={{ title: 'Platforms' }}
-      />
-      <Tab.Screen
-        name="Content"
-        component={ContentScreen}
-        options={{ title: 'Content' }}
-      />
-      <Tab.Screen
-        name="Analytics"
-        component={AnalyticsScreen}
-        options={{ title: 'Analytics' }}
-      />
-      <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{ title: 'Settings' }}
-      />
+      <Tab.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Q-Empire' }} />
+      <Tab.Screen name="Platforms" component={PlatformsScreen} options={{ title: 'Platforms' }} />
+      <Tab.Screen name="Content" component={ContentScreen} options={{ title: 'Content' }} />
+      <Tab.Screen name="Analytics" component={AnalyticsScreen} options={{ title: 'Analytics' }} />
+      <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
     </Tab.Navigator>
   );
 }
@@ -143,95 +120,33 @@ export default function Navigation() {
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
-          headerStyle: {
-            backgroundColor: theme.colors.surface,
-          },
+          headerStyle: { backgroundColor: theme.colors.surface },
           headerTintColor: theme.colors.text,
-          headerTitleStyle: {
-            fontWeight: '700',
-          },
-          contentStyle: {
-            backgroundColor: theme.colors.background,
-          },
+          headerTitleStyle: { fontWeight: '700' },
+          contentStyle: { backgroundColor: theme.colors.background },
         }}
       >
         {!isAuthenticated ? (
           <>
-            {!hasCompletedOnboarding ? (
-              <Stack.Screen
-                name="Onboarding"
-                component={OnboardingScreen}
-                options={{ headerShown: false }}
-              />
-            ) : null}
-            <Stack.Screen
-              name="Login"
-              component={LoginScreen}
-              options={{ headerShown: false }}
-            />
+            {!hasCompletedOnboarding && (
+              <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false }} />
+            )}
+            <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
           </>
         ) : (
           <>
-            <Stack.Screen
-              name="MainTabs"
-              component={MainTabNavigator}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="WebsiteAnalysis"
-              component={WebsiteAnalysisScreen}
-              options={{ title: 'Analyze Website' }}
-            />
-            <Stack.Screen
-              name="PlatformDetail"
-              component={PlatformDetailScreen}
-              options={{ title: 'Platform Details' }}
-            />
-            <Stack.Screen
-              name="GenerateContent"
-              component={GenerateContentScreen}
-              options={{ title: 'Generate Content' }}
-            />
-            <Stack.Screen
-              name="PostEditor"
-              component={PostEditorScreen}
-              options={{ title: 'Edit Post' }}
-            />
-            <Stack.Screen
-              name="AutopilotConfig"
-              component={AutopilotConfigScreen}
-              options={{ title: 'Autopilot Settings' }}
-            />
-            <Stack.Screen
-              name="Notifications"
-              component={NotificationScreen}
-              options={{ title: 'Notifications' }}
-            />
-            <Stack.Screen
-              name="Subscription"
-              component={SubscriptionScreen}
-              options={{ title: 'Subscription' }}
-            />
-            <Stack.Screen
-              name="PromoCode"
-              component={PromoCodeScreen}
-              options={{ title: 'Promo Code' }}
-            />
-            <Stack.Screen
-              name="Referral"
-              component={ReferralScreen}
-              options={{ title: 'Refer & Earn' }}
-            />
-            <Stack.Screen
-              name="AIFeatures"
-              component={AIFeaturesScreen}
-              options={{ title: 'AI Features' }}
-            />
-            <Stack.Screen
-              name="Support"
-              component={SupportScreen}
-              options={{ title: 'Help & Support' }}
-            />
+            <Stack.Screen name="MainTabs" component={MainTabNavigator} options={{ headerShown: false }} />
+            <Stack.Screen name="WebsiteAnalysis" component={WebsiteAnalysisScreen} options={{ title: 'Analyze Website' }} />
+            <Stack.Screen name="PlatformDetail" component={PlatformDetailScreen} options={{ title: 'Platform Details' }} />
+            <Stack.Screen name="GenerateContent" component={GenerateContentScreen} options={{ title: 'Generate Content' }} />
+            <Stack.Screen name="PostEditor" component={PostEditorScreen} options={{ title: 'Edit Post' }} />
+            <Stack.Screen name="AutopilotConfig" component={AutopilotConfigScreen} options={{ title: 'Autopilot Settings' }} />
+            <Stack.Screen name="Notifications" component={NotificationScreen} options={{ title: 'Notifications' }} />
+            <Stack.Screen name="Subscription" component={SubscriptionScreen} options={{ title: 'Subscription' }} />
+            <Stack.Screen name="PromoCode" component={PromoCodeScreen} options={{ title: 'Promo Code' }} />
+            <Stack.Screen name="Referral" component={ReferralScreen} options={{ title: 'Referrals' }} />
+            <Stack.Screen name="AIFeatures" component={AIFeaturesScreen} options={{ title: 'AI Features' }} />
+            <Stack.Screen name="Support" component={SupportScreen} options={{ title: 'Support' }} />
           </>
         )}
       </Stack.Navigator>
