@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Q-Empire Social Autopilot - Preview</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+
+:root {
+  --electric-yellow: #FFE600;
+  --hot-pink: #FF1493;
+  --electric-blue: #00D4FF;
+  --deep-purple: #6B00FF;
+  --neon-cyan: #00FFFF;
+  --bg-dark: #0A0A1A;
+  --bg-card: #12122E;
+  --bg-surface: #1A1A3E;
+  --text-primary: #F0F0FF;
+  --text-secondary: #A0A0C0;
+  --success: #10B981;
+  --warning: #F59E0B;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ANIMATED BACKGROUND */
+.bg-animation {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 0;
+  overflow: hidden;
+}
+.bg-animation .orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  animation: float 8s ease-in-out infinite;
+}
+.orb-1 { width: 300px; height: 300px; background: var(--electric-blue); top: 10%; left: 10%; animation-delay: 0s; }
+.orb-2 { width: 250px; height: 250px; background: var(--hot-pink); top: 60%; right: 10%; animation-delay: 2s; }
+.orb-3 { width: 200px; height: 200px; background: var(--electric-yellow); bottom: 20%; left: 30%; animation-delay: 4s; }
+.orb-4 { width: 180px; height: 180px; background: var(--deep-purple); top: 40%; right: 30%; animation-delay: 1s; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-30px) scale(1.1); }
+}
+
+/* PARTICLES */
+.particles {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+.particle {
+  position: absolute;
+  width: 4px; height: 4px;
+  background: var(--electric-yellow);
+  border-radius: 50%;
+  animation: particle-rise 6s linear infinite;
+  opacity: 0.6;
+}
+@keyframes particle-rise {
+  0% { transform: translateY(100vh) scale(0); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+}
+
+/* APP CONTAINER */
+.app-container {
+  position: relative;
+  z-index: 2;
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: rgba(10, 10, 26, 0.85);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(255,255,255,0.05);
+  border-right: 1px solid rgba(255,255,255,0.05);
+  overflow: hidden;
+}
+
+/* SCREEN */
+.screen {
+  display: none;
+  padding: 20px;
+  min-height: 100vh;
+  animation: screenIn 0.5s ease-out;
+}
+.screen.active { display: block; }
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* SPLASH SCREEN */
+.splash-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  position: relative;
+}
+
+/* CHARACTERS */
+.character-container {
+  position: relative;
+  width: 280px;
+  height: 200px;
+  margin-bottom: 30px;
+}
+
+/* Q-BOT AGENT */
+.q-bot {
+  position: absolute;
+  width: 80px;
+  height: 100px;
+  right: 20px;
+  top: 20px;
+  animation: bot-float 3s ease-in-out infinite;
+}
+@keyframes bot-float {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+}
+.q-bot-body {
+  width: 60px; height: 50px;
+  background: linear-gradient(135deg, var(--electric-blue), var(--deep-purple));
+  border-radius: 15px;
+  position: relative;
+  margin: 0 auto;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+}
+.q-bot-eye {
+  width: 12px; height: 12px;
+  background: var(--electric-yellow);
+  border-radius: 50%;
+  position: absolute;
+  top: 15px;
+  animation: blink 3s infinite;
+}
+.q-bot-eye.left { left: 12px; }
+.q-bot-eye.right { right: 12px; }
+@keyframes blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+.q-bot-antenna {
+  width: 4px; height: 15px;
+  background: var(--electric-yellow);
+  position: absolute;
+  top: -15px; left: 50%;
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+.q-bot-antenna::after {
+  content: '';
+  width: 10px; height: 10px;
+  background: var(--hot-pink);
+  border-radius: 50%;
+  position: absolute;
+  top: -8px; left: 50%;
+  transform: translateX(-50%);
+  animation: antenna-glow 1s ease-in-out infinite alternate;
+}
+@keyframes antenna-glow {
+  from { box-shadow: 0 0 5px var(--hot-pink); }
+  to { box-shadow: 0 0 15px var(--hot-pink), 0 0 30px var(--hot-pink); }
+}
+.q-bot-arm {
+  width: 8px; height: 25px;
+  background: linear-gradient(var(--electric-blue), var(--deep-purple));
+  position: absolute;
+  bottom: 10px;
+  border-radius: 4px;
+}
+.q-bot-arm.left { left: -5px; transform: rotate(-20deg); animation: wave-left 2s ease-in-out infinite; }
+.q-bot-arm.right { right: -5px; transform: rotate(20deg); animation: wave-right 2s ease-in-out infinite; }
+@keyframes wave-left {
+  0%, 100% { transform: rotate(-20deg); }
+  50% { transform: rotate(-40deg); }
+}
+@keyframes wave-right {
+  0%, 100% { transform: rotate(20deg); }
+  50% { transform: rotate(40deg); }
+}
+
+/* BLACK MERMAID */
+.mermaid {
+  position: absolute;
+  width: 100px;
+  height: 140px;
+  left: 30px;
+  top: 10px;
+  animation: mermaid-sway 4s ease-in-out infinite;
+}
+@keyframes mermaid-sway {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-10px) rotate(3deg); }
+}
+.mermaid-hair {
+  width: 50px; height: 40px;
+  background: linear-gradient(180deg, #FFD700, #FFA500, #FF8C00);
+  border-radius: 25px 25px 10px 10px;
+  position: absolute;
+  top: 0; left: 25px;
+  animation: hair-flow 3s ease-in-out infinite;
+}
+@keyframes hair-flow {
+  0%, 100% { transform: scaleX(1) skewX(0deg); }
+  50% { transform: scaleX(1.1) skewX(-5deg); }
+}
+.mermaid-face {
+  width: 35px; height: 30px;
+  background: #8B4513;
+  border-radius: 50%;
+  position: absolute;
+  top: 20px; left: 32px;
+}
+.mermaid-eye {
+  width: 6px; height: 6px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 10px;
+}
+.mermaid-eye::after {
+  content: '';
+  width: 3px; height: 3px;
+  background: #4A2C00;
+  border-radius: 50%;
+  position: absolute;
+  top: 1px; left: 1px;
+}
+.mermaid-eye.left { left: 6px; }
+.mermaid-eye.right { right: 6px; }
+.mermaid-smile {
+  width: 12px; height: 6px;
+  border-bottom: 2px solid #FF69B4;
+  border-radius: 0 0 12px 12px;
+  position: absolute;
+  bottom: 6px; left: 50%;
+  transform: translateX(-50%);
+}
+.mermaid-body {
+  width: 30px; height: 40px;
+  background: linear-gradient(180deg, var(--hot-pink), #FF6B9D);
+  border-radius: 15px 15px 5px 5px;
+  position: absolute;
+  top: 48px; left: 35px;
+}
+.mermaid-tail {
+  width: 50px; height: 50px;
+  background: linear-gradient(135deg, var(--electric-blue), var(--deep-purple));
+  border-radius: 0 50% 50% 50%;
+  position: absolute;
+  bottom: 0; left: 25px;
+  transform: rotate(45deg);
+  animation: tail-wave 2s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+}
+@keyframes tail-wave {
+  0%, 100% { transform: rotate(45deg) scale(1); }
+  50% { transform: rotate(50deg) scale(1.05); }
+}
+.mermaid-tail::after {
+  content: '';
+  width: 30px; height: 30px;
+  background: linear-gradient(135deg, var(--electric-yellow), #FFD700);
+  border-radius: 0 50% 50% 50%;
+  position: absolute;
+  top: 5px; left: 5px;
+}
+
+/* HUMAN SON */
+.human-son {
+  position: absolute;
+  width: 60px;
+  height: 100px;
+  left: 100px;
+  bottom: 0;
+  animation: son-bounce 2.5s ease-in-out infinite;
+}
+@keyframes son-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.son-head {
+  width: 30px; height: 30px;
+  background: #CD853F;
+  border-radius: 50%;
+  position: absolute;
+  top: 0; left: 15px;
+}
+.son-hair {
+  width: 25px; height: 12px;
+  background: #FFD700;
+  border-radius: 12px 12px 0 0;
+  position: absolute;
+  top: -5px; left: 17px;
+  animation: hair-bounce 1s ease-in-out infinite;
+}
+@keyframes hair-bounce {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-5deg); }
+}
+.son-eye {
+  width: 5px; height: 5px;
+  background: #4A2C00;
+  border-radius: 50%;
+  position: absolute;
+  top: 10px;
+}
+.son-eye.left { left: 6px; }
+.son-eye.right { right: 6px; }
+.son-smile {
+  width: 10px; height: 5px;
+  border-bottom: 2px solid #FF69B4;
+  border-radius: 0 0 10px 10px;
+  position: absolute;
+  bottom: 6px; left: 50%;
+  transform: translateX(-50%);
+}
+.son-shirt {
+  width: 28px; height: 35px;
+  background: linear-gradient(180deg, var(--electric-yellow), #FFA500);
+  border-radius: 5px;
+  position: absolute;
+  top: 30px; left: 16px;
+}
+.son-pants {
+  width: 26px; height: 25px;
+  background: #4169E1;
+  border-radius: 0 0 5px 5px;
+  position: absolute;
+  top: 62px; left: 17px;
+}
+.son-shoes {
+  width: 12px; height: 8px;
+  background: #FF1493;
+  border-radius: 3px;
+  position: absolute;
+  bottom: 0;
+}
+.son-shoes.left { left: 14px; }
+.son-shoes.right { right: 14px; }
+
+/* SPLASH TEXT */
+.splash-title {
+  font-size: 42px;
+  font-weight: 800;
+  background: linear-gradient(90deg, var(--electric-yellow), var(--hot-pink), var(--electric-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+  animation: title-glow 3s ease-in-out infinite;
+}
+@keyframes title-glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+}
+.splash-subtitle {
+  font-size: 18px;
+  color: var(--electric-blue);
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.splash-tagline {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 30px;
+  padding: 0 20px;
+}
+
+/* BADGES */
+.badge-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+.badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid;
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+.badge-primary {
+  background: rgba(0, 212, 255, 0.15);
+  border-color: rgba(0, 212, 255, 0.4);
+  color: var(--electric-blue);
+}
+.badge-secondary {
+  background: rgba(255, 20, 147, 0.15);
+  border-color: rgba(255, 20, 147, 0.4);
+  color: var(--hot-pink);
+  animation-delay: 0.5s;
+}
+@keyframes badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* BUTTONS */
+.btn {
+  width: 100%;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--electric-blue), var(--deep-purple));
+  color: white;
+  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.4);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(0, 212, 255, 0.6);
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+  animation: shimmer 3s infinite;
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) rotate(45deg); }
+}
+.btn-secondary {
+  background: transparent;
+  border: 2px solid var(--hot-pink);
+  color: var(--hot-pink);
+  margin-top: 12px;
+}
+.btn-secondary:hover {
+  background: rgba(255, 20, 147, 0.1);
+}
+
+/* ONBOARDING */
+.onboarding-slide {
+  text-align: center;
+  padding-top: 40px;
+}
+.onboarding-char {
+  width: 200px;
+  height: 160px;
+  margin: 0 auto 30px;
+  position: relative;
+}
+.onboarding-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  background: linear-gradient(90deg, var(--electric-yellow), var(--hot-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.onboarding-desc {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 40px;
+  padding: 0 10px;
+}
+.dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+.dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 2px solid var(--text-secondary);
+  transition: all 0.3s;
+}
+.dot.active {
+  background: var(--electric-blue);
+  border-color: var(--electric-blue);
+  box-shadow: 0 0 10px var(--electric-blue);
+  transform: scale(1.2);
+}
+
+/* DASHBOARD */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-top: 10px;
+}
+.dashboard-greeting {
+  font-size: 24px;
+  font-weight: 700;
+}
+.dashboard-greeting span {
+  background: linear-gradient(90deg, var(--electric-yellow), var(--hot-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.profile-pic {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--hot-pink), var(--electric-blue));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  animation: profile-glow 3s ease-in-out infinite;
+}
+@keyframes profile-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(255, 20, 147, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(0, 212, 255, 0.5), 0 0 40px rgba(255, 20, 147, 0.3); }
+}
+
+/* STATS CARDS */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s;
+}
+.stat-card:hover { transform: translateY(-4px); }
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
+}
+.stat-card.blue::before { background: linear-gradient(90deg, var(--electric-blue), var(--deep-purple)); }
+.stat-card.pink::before { background: linear-gradient(90deg, var(--hot-pink), #FF6B9D); }
+.stat-card.yellow::before { background: linear-gradient(90deg, var(--electric-yellow), #FFA500); }
+.stat-card.green::before { background: linear-gradient(90deg, var(--success), #34D399); }
+.stat-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+.stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+.stat-trend {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 6px;
+}
+.stat-trend.up { color: var(--success); }
+.stat-trend.down { color: #EF4444; }
+
+/* AUTOPILOT CARD */
+.autopilot-card {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(107, 0, 255, 0.1));
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.autopilot-card::after {
+  content: '';
+  position: absolute;
+  top: -50%; right: -50%;
+  width: 100%; height: 100%;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.1), transparent);
+  animation: autopilot-pulse 4s ease-in-out infinite;
+}
+@keyframes autopilot-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+.autopilot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+.autopilot-title {
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.autopilot-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--success);
+}
+.status-dot {
+  width: 8px; height: 8px;
+  background: var(--success);
+  border-radius: 50%;
+  animation: status-blink 2s ease-in-out infinite;
+}
+@keyframes status-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.autopilot-info {
+  font-size: 14px;
+  color: var(--text-secondary);
+  position: relative;
+  z-index: 1;
+}
+.autopilot-info strong {
+  color: var(--electric-yellow);
+}
+
+/* PLATFORM LIST */
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.platform-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.platform-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 14px;
+  padding: 14px 16px;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.platform-item:hover {
+  border-color: rgba(0, 212, 255, 0.3);
+  transform: translateX(4px);
+}
+.platform-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.platform-info { flex: 1; }
+.platform-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.platform-status {
+  font-size: 12px;
+  color: var(--success);
+}
+.platform-toggle {
+  width: 48px; height: 26px;
+  background: var(--success);
+  border-radius: 13px;
+  position: relative;
+  flex-shrink: 0;
+}
+.platform-toggle::after {
+  content: '';
+  width: 20px; height: 20px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px; right: 3px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* BOTTOM NAV */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  background: rgba(18, 18, 46, 0.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0 20px;
+  z-index: 100;
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+.nav-item:hover { background: rgba(255,255,255,0.05); }
+.nav-item.active .nav-icon { color: var(--electric-blue); }
+.nav-item.active .nav-label { color: var(--electric-blue); }
+.nav-icon {
+  font-size: 22px;
+  color: var(--text-secondary);
+  transition: color 0.3s;
+}
+.nav-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+/* ANIMATED WAVE DIVIDER */
+.wave-divider {
+  width: 100%;
+  height: 60px;
+  position: relative;
+  overflow: hidden;
+  margin: 20px 0;
+}
+.wave-divider svg {
+  position: absolute;
+  bottom: 0;
+  width: 200%;
+  animation: wave 8s linear infinite;
+}
+@keyframes wave {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* LOADING ANIMATION */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 20px;
+}
+.loading-spinner {
+  width: 60px; height: 60px;
+  border: 4px solid rgba(0, 212, 255, 0.2);
+  border-top-color: var(--electric-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.loading-text {
+  font-size: 16px;
+  color: var(--text-secondary);
+  animation: loading-pulse 1.5s ease-in-out infinite;
+}
+@keyframes loading-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* CONTENT GENERATOR */
+.gen-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.gen-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.gen-platform-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+.gen-platform-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+.gen-content {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  padding: 12px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+}
+.gen-hashtags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.gen-hashtag {
+  padding: 4px 10px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--electric-blue);
+  font-weight: 600;
+}
+
+/* FLOATING ACTION BUTTON */
+.fab {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--hot-pink), var(--electric-blue));
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(255, 20, 147, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  z-index: 99;
+  animation: fab-pulse 3s ease-in-out infinite;
+}
+@keyframes fab-pulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(255, 20, 147, 0.4); }
+  50% { box-shadow: 0 4px 30px rgba(255, 20, 147, 0.6), 0 0 40px rgba(0, 212, 255, 0.3); }
+}
+.fab:hover {
+  transform: scale(1.1) rotate(90deg);
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.3); border-radius: 2px; }
+
+/* RESPONSIVE */
+@media (max-width: 430px) {
+  .app-container { border: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="bg-animation">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+</div>
+
+<!-- Particles -->
+<div class="particles" id="particles"></div>
+
+<!-- App Container -->
+<div class="app-container">
+
+  <!-- SPLASH SCREEN -->
+  <div class="screen active" id="splash-screen">
+    <div class="splash-screen">
+      <div class="character-container">
+        <!-- Black Mermaid with Blonde Hair -->
+        <div class="mermaid">
+          <div class="mermaid-hair"></div>
+          <div class="mermaid-face">
+            <div class="mermaid-eye left"></div>
+            <div class="mermaid-eye right"></div>
+            <div class="mermaid-smile"></div>
+          </div>
+          <div class="mermaid-body"></div>
+          <div class="mermaid-tail"></div>
+        </div>
+        <!-- Human Son -->
+        <div class="human-son">
+          <div class="son-head">
+            <div class="son-hair"></div>
+            <div class="son-eye left"></div>
+            <div class="son-eye right"></div>
+            <div class="son-smile"></div>
+          </div>
+          <div class="son-shirt"></div>
+          <div class="son-pants"></div>
+          <div class="son-shoes left"></div>
+          <div class="son-shoes right"></div>
+        </div>
+        <!-- Q-Bot Agent -->
+        <div class="q-bot">
+          <div class="q-bot-antenna"></div>
+          <div class="q-bot-body">
+            <div class="q-bot-eye left"></div>
+            <div class="q-bot-eye right"></div>
+          </div>
+          <div class="q-bot-arm left"></div>
+          <div class="q-bot-arm right"></div>
+        </div>
+      </div>
+
+      <h1 class="splash-title">Q-Empire</h1>
+      <p class="splash-subtitle">Social Autopilot</p>
+      <p class="splash-tagline">Posts to 25 platforms while you sleep</p>
+
+      <div class="badge-row">
+        <span class="badge badge-primary">🤖 AI-Powered</span>
+        <span class="badge badge-secondary">v1.0.0</span>
+      </div>
+
+      <button class="btn btn-primary" onclick="showScreen('onboarding')">Get Started ✨</button>
+      <button class="btn btn-secondary" onclick="showScreen('login')">I Already Have an Account</button>
+    </div>
+  </div>
+
+  <!-- ONBOARDING SCREEN -->
+  <div class="screen" id="onboarding-screen">
+    <div class="onboarding-slide" id="slide-1">
+      <div class="onboarding-char">
+        <div class="mermaid" style="position:relative;left:50%;transform:translateX(-50%) scale(1.5);">
+          <div class="mermaid-hair"></div>
+          <div class="mermaid-face"><div class="mermaid-eye left"></div><div class="mermaid-eye right"></div><div class="mermaid-smile"></div></div>
+          <div class="mermaid-body"></div>
+          <div class="mermaid-tail"></div>
+        </div>
+      </div>
+      <h2 class="onboarding-title">Meet Your AI Crew</h2>
+      <p class="onboarding-desc">Q-Bot, Mermaid, and Son work together to analyze your brand and create stunning content across all 25 platforms.</p>
+      <div class="dots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <button class="btn btn-primary" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <div class="onboarding-slide" id="slide-2" style="display:none;">
+      <div class="onboarding-char">
+        <div class="q-bot" style="position:relative;left:50%;transform:translateX(-50%) scale(1.5);">
+          <div class="q-bot-antenna"></div>
+          <div class="q-bot-body"><div class="q-bot-eye left"></div><div class="q-bot-eye right"></div></div>
+          <div class="q-bot-arm left"></div>
+          <div class="q-bot-arm right"></div>
+        </div>
+      </div>
+      <h2 class="onboarding-title">Autopilot Mode</h2>
+      <p class="onboarding-desc">Set your schedule once and let Q-Bot handle the rest. Your content goes live while you focus on what matters most.</p>
+      <div class="dots">
+        <div class="dot"></div>
+        <div class="dot active"></div>
+        <div class="dot"></div>
+      </div>
+      <button class="btn btn-primary" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <div class="onboarding-slide" id="slide-3" style="display:none;">
+      <div class="onboarding-char">
+        <div class="human-son" style="position:relative;left:50%;transform:translateX(-50%) scale(1.5);">
+          <div class="son-head"><div class="son-hair"></div><div class="son-eye left"></div><div class="son-eye right"></div><div class="son-smile"></div></div>
+          <div class="son-shirt"></div>
+          <div class="son-pants"></div>
+          <div class="son-shoes left"></div>
+          <div class="son-shoes right"></div>
+        </div>
+      </div>
+      <h2 class="onboarding-title">Track Everything</h2>
+      <p class="onboarding-desc">Real-time analytics across all platforms. See what works, optimize your strategy, and grow faster than ever.</p>
+      <div class="dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot active"></div>
+      </div>
+      <button class="btn btn-primary" onclick="showScreen('dashboard')">Launch Q-Empire 🚀</button>
+    </div>
+  </div>
+
+  <!-- LOGIN SCREEN -->
+  <div class="screen" id="login-screen">
+    <div style="padding-top:60px;text-align:center;">
+      <div class="character-container" style="margin:0 auto 30px;height:140px;">
+        <div class="q-bot" style="left:50%;transform:translateX(-50%) scale(1.3);">
+          <div class="q-bot-antenna"></div>
+          <div class="q-bot-body"><div class="q-bot-eye left"></div><div class="q-bot-eye right"></div></div>
+          <div class="q-bot-arm left"></div>
+          <div class="q-bot-arm right"></div>
+        </div>
+      </div>
+      <h2 style="font-size:28px;font-weight:700;margin-bottom:8px;background:linear-gradient(90deg,var(--electric-yellow),var(--hot-pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Welcome Back!</h2>
+      <p style="color:var(--text-secondary);margin-bottom:40px;">Sign in to your Q-Empire account</p>
+
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <input type="email" placeholder="Email address" style="padding:16px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);background:var(--bg-card);color:var(--text-primary);font-family:'Poppins',sans-serif;font-size:15px;outline:none;transition:all 0.3s;" onfocus="this.style.borderColor='var(--electric-blue)';this.style.boxShadow='0 0 10px rgba(0,212,255,0.2)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.boxShadow='none'">
+        <input type="password" placeholder="Password" style="padding:16px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);background:var(--bg-card);color:var(--text-primary);font-family:'Poppins',sans-serif;font-size:15px;outline:none;transition:all 0.3s;" onfocus="this.style.borderColor='var(--electric-blue)';this.style.boxShadow='0 0 10px rgba(0,212,255,0.2)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.boxShadow='none'">
+        <button class="btn btn-primary" onclick="showScreen('dashboard')">Sign In 🔐</button>
+        <button class="btn btn-secondary" onclick="showScreen('splash')">← Back to Start</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD SCREEN -->
+  <div class="screen" id="dashboard-screen">
+    <div class="dashboard-header">
+      <div>
+        <p style="font-size:13px;color:var(--text-secondary);">Good Evening 👋</p>
+        <h1 class="dashboard-greeting">Q-Empire <span>Dashboard</span></h1>
+      </div>
+      <div class="profile-pic">🧜🏾‍♀️</div>
+    </div>
+
+    <!-- Autopilot Card -->
+    <div class="autopilot-card">
+      <div class="autopilot-header">
+        <div class="autopilot-title">🤖 Autopilot</div>
+        <div class="autopilot-status"><div class="status-dot"></div> ACTIVE</div>
+      </div>
+      <p class="autopilot-info">Next post in <strong>2h 14m</strong> • 18 platforms connected • <strong>847 posts</strong> queued</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value">2.4K</div>
+        <div class="stat-label">Posts This Month</div>
+        <div class="stat-trend up">↑ 34% vs last month</div>
+      </div>
+      <div class="stat-card pink">
+        <div class="stat-icon">👁️</div>
+        <div class="stat-value">89K</div>
+        <div class="stat-label">Total Reach</div>
+        <div class="stat-trend up">↑ 52% vs last month</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-icon">❤️</div>
+        <div class="stat-value">12.3K</div>
+        <div class="stat-label">Engagements</div>
+        <div class="stat-trend up">↑ 28% vs last month</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon">🔗</div>
+        <div class="stat-value">18/25</div>
+        <div class="stat-label">Platforms Active</div>
+        <div class="stat-trend up">↑ 3 new this week</div>
+      </div>
+    </div>
+
+    <!-- Connected Platforms -->
+    <h3 class="section-title">🔗 Connected Platforms</h3>
+    <div class="platform-list">
+      <div class="platform-item">
+        <div class="platform-icon" style="background:linear-gradient(135deg,#1877F2,#0D5CB6);">📘</div>
+        <div class="platform-info">
+          <div class="platform-name">Facebook</div>
+          <div class="platform-status">● Active • 142 posts this week</div>
+        </div>
+        <div class="platform-toggle"></div>
+      </div>
+      <div class="platform-item">
+        <div class="platform-icon" style="background:linear-gradient(135deg,#E4405F,#C13584);">📸</div>
+        <div class="platform-info">
+          <div class="platform-name">Instagram</div>
+          <div class="platform-status">● Active • 98 posts this week</div>
+        </div>
+        <div class="platform-toggle"></div>
+      </div>
+      <div class="platform-item">
+        <div class="platform-icon" style="background:linear-gradient(135deg,#1DA1F2,#0D8BD9);">🐦</div>
+        <div class="platform-info">
+          <div class="platform-name">X / Twitter</div>
+          <div class="platform-status">● Active • 215 posts this week</div>
+        </div>
+        <div class="platform-toggle"></div>
+      </div>
+      <div class="platform-item">
+        <div class="platform-icon" style="background:linear-gradient(135deg,#0A66C2,#0077B5);">💼</div>
+        <div class="platform-info">
+          <div class="platform-name">LinkedIn</div>
+          <div class="platform-status">● Active • 67 posts this week</div>
+        </div>
+        <div class="platform-toggle"></div>
+      </div>
+      <div class="platform-item">
+        <div class="platform-icon" style="background:linear-gradient(135deg,#000000,#333333);">🎵</div>
+        <div class="platform-info">
+          <div class="platform-name">TikTok</div>
+          <div class="platform-status">● Active • 45 posts this week</div>
+        </div>
+        <div class="platform-toggle"></div>
+      </div>
+    </div>
+
+    <div style="height:100px;"></div>
+  </div>
+
+  <!-- CONTENT SCREEN -->
+  <div class="screen" id="content-screen">
+    <div style="padding-top:10px;">
+      <h1 style="font-size:24px;font-weight:700;margin-bottom:20px;">✨ AI Generated Content</h1>
+
+      <div class="gen-card">
+        <div class="gen-header">
+          <div class="gen-platform-icon" style="background:linear-gradient(135deg,#1877F2,#0D5CB6);">📘</div>
+          <div class="gen-platform-name">Facebook</div>
+        </div>
+        <div class="gen-content">🚀 Big news from Q-Empire! We're revolutionizing how businesses approach social media with AI-powered automation. Ready to scale your presence? Drop a 🔥 if you're ready!</div>
+        <div class="gen-hashtags">
+          <span class="gen-hashtag">#AI</span>
+          <span class="gen-hashtag">#SocialMedia</span>
+          <span class="gen-hashtag">#Growth</span>
+          <span class="gen-hashtag">#Automation</span>
+        </div>
+      </div>
+
+      <div class="gen-card">
+        <div class="gen-header">
+          <div class="gen-platform-icon" style="background:linear-gradient(135deg,#E4405F,#C13584);">📸</div>
+          <div class="gen-platform-name">Instagram</div>
+        </div>
+        <div class="gen-content">✨ The future of marketing is here ✨<br><br>Q-Empire helps you post to 25 platforms while you sleep 😴🚀<br><br>No more manual posting. No more missed opportunities.<br><br>Link in bio 👆</div>
+        <div class="gen-hashtags">
+          <span class="gen-hashtag">#AI</span>
+          <span class="gen-hashtag">#Automation</span>
+          <span class="gen-hashtag">#SocialMedia</span>
+          <span class="gen-hashtag">#Entrepreneur</span>
+        </div>
+      </div>
+
+      <div class="gen-card">
+        <div class="gen-header">
+          <div class="gen-platform-icon" style="background:linear-gradient(135deg,#1DA1F2,#0D8BD9);">🐦</div>
+          <div class="gen-platform-name">X / Twitter</div>
+        </div>
+        <div class="gen-content">🤖 AI just replaced my social media manager.<br><br>Q-Empire posts to 25 platforms on autopilot.<br><br>I just set it and sleep.<br><br>Game changer. 🚀</div>
+        <div class="gen-hashtags">
+          <span class="gen-hashtag">#AITools</span>
+          <span class="gen-hashtag">#Automation</span>
+        </div>
+      </div>
+
+      <div style="height:100px;"></div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS SCREEN -->
+  <div class="screen" id="analytics-screen">
+    <div style="padding-top:10px;">
+      <h1 style="font-size:24px;font-weight:700;margin-bottom:20px;">📊 Analytics</h1>
+
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon">📈</div>
+          <div class="stat-value">+156%</div>
+          <div class="stat-label">Growth Rate</div>
+          <div class="stat-trend up">↑ vs last quarter</div>
+        </div>
+        <div class="stat-card pink">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-value">4.2%</div>
+          <div class="stat-label">Engagement Rate</div>
+          <div class="stat-trend up">↑ 0.8% this month</div>
+        </div>
+      </div>
+
+      <div class="gen-card">
+        <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">🏆 Top Performing Platforms</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:30px;text-align:center;font-size:20px;">📸</div>
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;font-size:14px;"><span>Instagram</span><span style="color:var(--success);font-weight:600;">+67%</span></div>
+              <div style="height:6px;background:var(--bg-surface);border-radius:3px;margin-top:4px;overflow:hidden;">
+                <div style="width:85%;height:100%;background:linear-gradient(90deg,var(--hot-pink),#FF6B9D);border-radius:3px;animation:barGrow 1s ease-out;"></div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:30px;text-align:center;font-size:20px;">🐦</div>
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;font-size:14px;"><span>X / Twitter</span><span style="color:var(--success);font-weight:600;">+45%</span></div>
+              <div style="height:6px;background:var(--bg-surface);border-radius:3px;margin-top:4px;overflow:hidden;">
+                <div style="width:72%;height:100%;background:linear-gradient(90deg,var(--electric-blue),var(--deep-purple));border-radius:3px;animation:barGrow 1.2s ease-out;"></div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:30px;text-align:center;font-size:20px;">📘</div>
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;font-size:14px;"><span>Facebook</span><span style="color:var(--success);font-weight:600;">+38%</span></div>
+              <div style="height:6px;background:var(--bg-surface);border-radius:3px;margin-top:4px;overflow:hidden;">
+                <div style="width:65%;height:100%;background:linear-gradient(90deg,#1877F2,#0D5CB6);border-radius:3px;animation:barGrow 1.4s ease-out;"></div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:30px;text-align:center;font-size:20px;">💼</div>
+            <div style="flex:1;">
+              <div style="display:flex;justify-content:space-between;font-size:14px;"><span>LinkedIn</span><span style="color:var(--success);font-weight:600;">+29%</span></div>
+              <div style="height:6px;background:var(--bg-surface);border-radius:3px;margin-top:4px;overflow:hidden;">
+                <div style="width:52%;height:100%;background:linear-gradient(90deg,#0A66C2,#0077B5);border-radius:3px;animation:barGrow 1.6s ease-out;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:100px;"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS SCREEN -->
+  <div class="screen" id="settings-screen">
+    <div style="padding-top:10px;">
+      <h1 style="font-size:24px;font-weight:700;margin-bottom:20px;">⚙️ Settings</h1>
+
+      <div class="gen-card" style="display:flex;align-items:center;gap:14px;">
+        <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--hot-pink),var(--electric-blue));display:flex;align-items:center;justify-content:center;font-size:24px;">🧜🏾‍♀️</div>
+        <div style="flex:1;">
+          <div style="font-size:16px;font-weight:600;">Q-Empire User</div>
+          <div style="font-size:13px;color:var(--text-secondary);">Pro Plan • 18 platforms</div>
+        </div>
+        <div style="font-size:20px;color:var(--electric-yellow);">👑</div>
+      </div>
+
+      <div style="margin-top:20px;display:flex;flex-direction:column;gap:12px;">
+        <div class="platform-item" style="cursor:default;">
+          <div style="font-size:20px;">🔔</div>
+          <div class="platform-info"><div class="platform-name">Notifications</div></div>
+          <div class="platform-toggle"></div>
+        </div>
+        <div class="platform-item" style="cursor:default;">
+          <div style="font-size:20px;">🌙</div>
+          <div class="platform-info"><div class="platform-name">Dark Mode</div></div>
+          <div class="platform-toggle"></div>
+        </div>
+        <div class="platform-item" style="cursor:default;">
+          <div style="font-size:20px;">🤖</div>
+          <div class="platform-info"><div class="platform-name">AI Autopilot</div></div>
+          <div class="platform-toggle"></div>
+        </div>
+        <div class="platform-item" style="cursor:default;">
+          <div style="font-size:20px;">💳</div>
+          <div class="platform-info"><div class="platform-name">Subscription</div></div>
+          <div style="font-size:13px;color:var(--electric-blue);font-weight:600;">Pro</div>
+        </div>
+        <div class="platform-item" style="cursor:default;">
+          <div style="font-size:20px;">❓</div>
+          <div class="platform-info"><div class="platform-name">Help & Support</div></div>
+          <div style="font-size:20px;color:var(--text-secondary);">→</div>
+        </div>
+        <div class="platform-item" style="cursor:default;">
+          <div style="font-size:20px;">🚪</div>
+          <div class="platform-info"><div class="platform-name" style="color:#EF4444;">Sign Out</div></div>
+        </div>
+      </div>
+
+      <div style="height:100px;"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav" id="bottom-nav" style="display:none;">
+    <div class="nav-item active" onclick="showScreen('dashboard')">
+      <span class="nav-icon">⊞</span>
+      <span class="nav-label">Dashboard</span>
+    </div>
+    <div class="nav-item" onclick="showScreen('content')">
+      <span class="nav-icon">✎</span>
+      <span class="nav-label">Content</span>
+    </div>
+    <div class="nav-item" onclick="showScreen('analytics')">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Analytics</span>
+    </div>
+    <div class="nav-item" onclick="showScreen('settings')">
+      <span class="nav-icon">⚙</span>
+      <span class="nav-label">Settings</span>
+    </div>
+  </nav>
+
+  <!-- FLOATING ACTION BUTTON -->
+  <button class="fab" id="fab" style="display:none;" onclick="alert('🤖 Q-Bot is generating fresh content for all 18 platforms!')">✨</button>
+
+</div>
+
+<script>
+// Generate particles
+const particlesContainer = document.getElementById('particles');
+for (let i = 0; i < 30; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  p.style.left = Math.random() * 100 + '%';
+  p.style.animationDelay = Math.random() * 6 + 's';
+  p.style.animationDuration = (4 + Math.random() * 4) + 's';
+  const colors = ['var(--electric-yellow)', 'var(--hot-pink)', 'var(--electric-blue)', 'var(--neon-cyan)'];
+  p.style.background = colors[Math.floor(Math.random() * colors.length)];
+  particlesContainer.appendChild(p);
+}
+
+let currentSlide = 1;
+
+function showScreen(screenName) {
+  // Hide all screens
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+
+  // Show target screen
+  const screenMap = {
+    'splash': 'splash-screen',
+    'onboarding': 'onboarding-screen',
+    'login': 'login-screen',
+    'dashboard': 'dashboard-screen',
+    'content': 'content-screen',
+    'analytics': 'analytics-screen',
+    'settings': 'settings-screen'
+  };
+
+  const target = document.getElementById(screenMap[screenName] || screenName + '-screen');
+  if (target) {
+    target.classList.add('active');
+    target.style.display = 'block';
+  }
+
+  // Show/hide bottom nav and fab
+  const showNav = ['dashboard', 'content', 'analytics', 'settings'].includes(screenName);
+  document.getElementById('bottom-nav').style.display = showNav ? 'flex' : 'none';
+  document.getElementById('fab').style.display = showNav ? 'flex' : 'none';
+
+  // Update nav active state
+  if (showNav) {
+    document.querySelectorAll('.nav-item').forEach((item, idx) => {
+      item.classList.remove('active');
+      const screens = ['dashboard', 'content', 'analytics', 'settings'];
+      if (screens[idx] === screenName) item.classList.add('active');
+    });
+  }
+
+  window.scrollTo(0, 0);
+}
+
+function nextSlide() {
+  document.getElementById('slide-' + currentSlide).style.display = 'none';
+  currentSlide++;
+  if (currentSlide > 3) {
+    showScreen('dashboard');
+    return;
+  }
+  document.getElementById('slide-' + currentSlide).style.display = 'block';
+}
+
+// Auto-hide splash after 4 seconds
+setTimeout(() => {
+  const splash = document.getElementById('splash-screen');
+  if (splash.classList.contains('active')) {
+    // Keep it, let user click
+  }
+}, 4000);
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' && document.getElementById('onboarding-screen').classList.contains('active')) {
+    nextSlide();
+  }
+});
+</script>
+
+</body>
+</html>
