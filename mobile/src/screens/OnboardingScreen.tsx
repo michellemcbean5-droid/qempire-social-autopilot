@@ -1,185 +1,263 @@
-import React, { useState, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Image,
-  Dimensions,
-  Animated,
-  TouchableOpacity,
-} from 'react-native';
-import {
-  Button,
-  Text,
-  Surface,
-  Chip,
-  IconButton,
-} from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import React, { useRef, useState } from 'react';
+import { View, StyleSheet, Animated, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
+import { Text, Button, Surface, ProgressBar } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
-import { RootStackParamList } from '@/navigation';
+import MermaidCharacter from '@/components/MermaidCharacter';
+import SonCharacter from '@/components/SonCharacter';
+import QBotCharacter from '@/components/QBotCharacter';
+import { colors, spacing, borderRadius, typography } from '@/constants/theme';
 import { useAuthStore } from '@/store/authStore';
-import { colors, spacing, borderRadius, shadows } from '@/constants/theme';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
-const ONBOARDING_SLIDES = [
+interface OnboardingSlide {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  character: 'mermaid' | 'son' | 'qbot' | 'all';
+  characterMood?: 'happy' | 'thinking' | 'working' | 'celebrating';
+  icon: string;
+  accentColor: string;
+}
+
+const SLIDES: OnboardingSlide[] = [
   {
-    id: '1',
-    title: 'AI-Powered Social Media',
-    subtitle: 'Generate platform-optimized content with cutting-edge AI',
-    description: 'Our AI engine analyzes your brand and creates unique, engaging posts for up to 25 social media platforms.',
-    icon: '🤖',
-    color: colors.royalBlue,
+    id: 'welcome',
+    title: 'Welcome to Q-Empire',
+    subtitle: 'Your Social Media Command Center',
+    description: 'Meet your AI-powered team that handles all 25 social platforms while you focus on what matters most.',
+    character: 'all',
+    icon: 'rocket',
+    accentColor: colors.royalBlue,
   },
   {
-    id: '2',
-    title: 'Autopilot Scheduling',
-    subtitle: 'Set it and forget it',
-    description: 'Configure your posting schedule once. The AI will generate and publish content automatically while you sleep.',
-    icon: '🚀',
-    color: colors.electricPurple,
+    id: 'ai-power',
+    title: 'AI Content Generation',
+    subtitle: 'Smart Posts, Every Time',
+    description: 'Q-Bot analyzes your brand voice and creates unique, platform-optimized content for each network automatically.',
+    character: 'qbot',
+    characterMood: 'working',
+    icon: 'sparkles',
+    accentColor: colors.neonAqua,
   },
   {
-    id: '3',
-    title: '25 Platforms',
-    subtitle: 'One app, complete coverage',
-    description: 'From Facebook to TikTok, LinkedIn to Bluesky — connect all your social accounts in one place.',
-    icon: '🌐',
-    color: colors.neonAqua,
+    id: 'autopilot',
+    title: 'True Autopilot Mode',
+    subtitle: 'Set It & Sleep On It',
+    description: 'Schedule posts across all platforms. The mermaid handles the flow while your son watches the magic happen.',
+    character: 'mermaid',
+    icon: 'time',
+    accentColor: colors.electricPurple,
   },
   {
-    id: '4',
-    title: 'Analytics Dashboard',
-    subtitle: 'Track what matters',
-    description: 'Monitor engagement, reach, and performance across all platforms with real-time analytics.',
-    icon: '📊',
-    color: colors.warmGold,
+    id: 'analytics',
+    title: 'Real-Time Analytics',
+    subtitle: 'Know What Works',
+    description: 'Track engagement, reach, and performance across all 25 platforms from one beautiful dashboard.',
+    character: 'son',
+    icon: 'stats-chart',
+    accentColor: colors.warmGold,
   },
   {
-    id: '5',
-    title: 'Ready to Start?',
-    subtitle: 'Your social empire awaits',
-    description: 'Join thousands of businesses automating their social media success with Q-Empire.',
-    icon: '👑',
-    color: colors.royalBlue,
+    id: 'ready',
+    title: 'Ready to Launch?',
+    subtitle: 'Your Empire Awaits',
+    description: 'Connect your platforms, set your schedule, and let Q-Empire handle the rest. Your social media runs itself.',
+    character: 'all',
+    icon: 'checkmark-circle',
+    accentColor: colors.success,
   },
 ];
 
 export default function OnboardingScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { completeOnboarding } = useAuthStore();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const scrollX = useRef(new Animated.Value(0)).current;
   const scrollRef = useRef<ScrollView>(null);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const { completeOnboarding } = useAuthStore();
 
-  const handleNext = () => {
-    if (currentIndex < ONBOARDING_SLIDES.length - 1) {
-      scrollRef.current?.scrollTo({
-        x: width * (currentIndex + 1),
-        animated: true,
-      });
+  const animateTransition = (direction: number) => {
+    Animated.sequence([
+      Animated.timing(fadeAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: direction * width, duration: 0, useNativeDriver: true }),
+      Animated.parallel([
+        Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: 0, duration: 400, useNativeDriver: true }),
+      ]),
+    ]).start();
+  };
+
+  const goToNext = () => {
+    if (currentIndex < SLIDES.length - 1) {
+      animateTransition(-1);
       setCurrentIndex(currentIndex + 1);
+      scrollRef.current?.scrollTo({ x: (currentIndex + 1) * width, animated: true });
     } else {
       completeOnboarding();
-      navigation.navigate('Login');
     }
   };
 
-  const handleSkip = () => {
-    completeOnboarding();
-    navigation.navigate('Login');
+  const goToPrev = () => {
+    if (currentIndex > 0) {
+      animateTransition(1);
+      setCurrentIndex(currentIndex - 1);
+      scrollRef.current?.scrollTo({ x: (currentIndex - 1) * width, animated: true });
+    }
   };
 
-  const handleScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-    { useNativeDriver: false }
-  );
-
-  const renderSlide = ({ item, index }: { item: typeof ONBOARDING_SLIDES[0]; index: number }) => {
-    const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
-    
-    const scale = scrollX.interpolate({
-      inputRange,
-      outputRange: [0.8, 1, 0.8],
-      extrapolate: 'clamp',
-    });
-
-    const opacity = scrollX.interpolate({
-      inputRange,
-      outputRange: [0.3, 1, 0.3],
-      extrapolate: 'clamp',
-    });
-
-    return (
-      <Animated.View style={[styles.slide, { transform: [{ scale }], opacity }]}>
-        <View style={[styles.iconContainer, { backgroundColor: item.color + '20' }]}>
-          <Text style={styles.icon}>{item.icon}</Text>
-        </View>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.subtitle}>{item.subtitle}</Text>
-        <Text style={styles.description}>{item.description}</Text>
-      </Animated.View>
-    );
+  const renderCharacter = (slide: OnboardingSlide) => {
+    switch (slide.character) {
+      case 'mermaid':
+        return <MermaidCharacter size={width * 0.45} animated={true} />;
+      case 'son':
+        return <SonCharacter size={width * 0.4} animated={true} />;
+      case 'qbot':
+        return <QBotCharacter size={width * 0.42} animated={true} mood={slide.characterMood || 'happy'} />;
+      case 'all':
+        return (
+          <View style={styles.allCharacters}>
+            <SonCharacter size={width * 0.25} animated={true} style={{ marginRight: -20 }} />
+            <QBotCharacter size={width * 0.28} animated={true} mood="celebrating" style={{ zIndex: 1 }} />
+            <MermaidCharacter size={width * 0.26} animated={true} style={{ marginLeft: -20 }} />
+          </View>
+        );
+      default:
+        return null;
+    }
   };
+
+  const slide = SLIDES[currentIndex];
+  const progress = (currentIndex + 1) / SLIDES.length;
 
   return (
     <View style={styles.container}>
-      {/* Skip Button */}
-      <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-        <Text style={styles.skipText}>Skip</Text>
-      </TouchableOpacity>
-
-      {/* Slides */}
-      <ScrollView
-        ref={scrollRef}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-        onMomentumScrollEnd={(e) => {
-          const index = Math.round(e.nativeEvent.contentOffset.x / width);
-          setCurrentIndex(index);
-        }}
+      <LinearGradient
+        colors={['#0A0A1A', '#0D0D2B', '#1a0a3e']}
+        style={styles.gradient}
       >
-        {ONBOARDING_SLIDES.map((item, index) => (
-          <View key={item.id} style={styles.slideContainer}>
-            {renderSlide({ item, index })}
-          </View>
-        ))}
-      </ScrollView>
-
-      {/* Pagination */}
-      <View style={styles.pagination}>
-        {ONBOARDING_SLIDES.map((_, index) => (
-          <Animated.View
-            key={index}
-            style={[
-              styles.dot,
-              {
-                backgroundColor: currentIndex === index ? colors.royalBlue : colors.border,
-                width: currentIndex === index ? 24 : 8,
-              },
-            ]}
+        {/* Top progress bar */}
+        <View style={styles.progressContainer}>
+          <ProgressBar
+            progress={progress}
+            color={slide.accentColor}
+            style={styles.progressBar}
           />
-        ))}
-      </View>
+          <Text style={styles.progressText}>
+            {currentIndex + 1} / {SLIDES.length}
+          </Text>
+        </View>
 
-      {/* CTA Button */}
-      <Surface style={styles.footer}>
-        <Button
-          mode="contained"
-          onPress={handleNext}
-          style={styles.ctaButton}
-          buttonColor={colors.royalBlue}
-          textColor={colors.softWhite}
-          icon={currentIndex === ONBOARDING_SLIDES.length - 1 ? 'rocket-launch' : 'arrow-right'}
+        {/* Skip button */}
+        {currentIndex < SLIDES.length - 1 && (
+          <TouchableOpacity style={styles.skipButton} onPress={completeOnboarding}>
+            <Text style={styles.skipText}>Skip</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Main content */}
+        <Animated.View
+          style={[
+            styles.content,
+            { opacity: fadeAnim, transform: [{ translateX: slideAnim }] },
+          ]}
         >
-          {currentIndex === ONBOARDING_SLIDES.length - 1 ? 'Get Started' : 'Next'}
-        </Button>
-      </Surface>
+          {/* Character area */}
+          <View style={styles.characterArea}>
+            <View style={[styles.characterGlow, { backgroundColor: slide.accentColor + '15' }]}>
+              {renderCharacter(slide)}
+            </View>
+          </View>
+
+          {/* Text content */}
+          <Surface style={styles.textCard}>
+            <View style={[styles.iconContainer, { backgroundColor: slide.accentColor + '20' }]}>
+              <Ionicons name={slide.icon as any} size={28} color={slide.accentColor} />
+            </View>
+
+            <Text style={styles.title}>{slide.title}</Text>
+            <Text style={[styles.subtitle, { color: slide.accentColor }]}>{slide.subtitle}</Text>
+            <Text style={styles.description}>{slide.description}</Text>
+
+            {/* Feature highlights */}
+            {slide.id === 'ai-power' && (
+              <View style={styles.featureRow}>
+                <FeatureBadge icon="logo-facebook" label="Facebook" color="#1877F2" />
+                <FeatureBadge icon="logo-instagram" label="Instagram" color="#E4405F" />
+                <FeatureBadge icon="logo-twitter" label="X/Twitter" color="#1DA1F2" />
+              </View>
+            )}
+            {slide.id === 'autopilot' && (
+              <View style={styles.featureRow}>
+                <FeatureBadge icon="calendar" label="Daily" color={colors.success} />
+                <FeatureBadge icon="repeat" label="Weekly" color={colors.warning} />
+                <FeatureBadge icon="cog" label="Custom" color={colors.info} />
+              </View>
+            )}
+            {slide.id === 'analytics' && (
+              <View style={styles.featureRow}>
+                <FeatureBadge icon="eye" label="Reach" color={colors.royalBlue} />
+                <FeatureBadge icon="heart" label="Engagement" color={colors.electricPurple} />
+                <FeatureBadge icon="trending-up" label="Growth" color={colors.neonAqua} />
+              </View>
+            )}
+          </Surface>
+        </Animated.View>
+
+        {/* Navigation buttons */}
+        <View style={styles.navContainer}>
+          <View style={styles.dotsContainer}>
+            {SLIDES.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dot,
+                  index === currentIndex && [
+                    styles.dotActive,
+                    { backgroundColor: slide.accentColor },
+                  ],
+                ]}
+              />
+            ))}
+          </View>
+
+          <View style={styles.buttonRow}>
+            {currentIndex > 0 && (
+              <Button
+                mode="outlined"
+                onPress={goToPrev}
+                style={styles.prevButton}
+                textColor={colors.textSecondary}
+              >
+                Back
+              </Button>
+            )}
+            <Button
+              mode="contained"
+              onPress={goToNext}
+              style={[
+                styles.nextButton,
+                { backgroundColor: slide.accentColor },
+              ]}
+              textColor="#FFF"
+              icon={currentIndex === SLIDES.length - 1 ? 'checkmark' : 'arrow-forward'}
+            >
+              {currentIndex === SLIDES.length - 1 ? 'Get Started' : 'Next'}
+            </Button>
+          </View>
+        </View>
+      </LinearGradient>
+    </View>
+  );
+}
+
+function FeatureBadge({ icon, label, color }: { icon: string; label: string; color: string }) {
+  return (
+    <View style={[styles.featureBadge, { backgroundColor: color + '15', borderColor: color + '30' }]}>
+      <Ionicons name={icon as any} size={14} color={color} />
+      <Text style={[styles.featureBadgeText, { color }]}>{label}</Text>
     </View>
   );
 }
@@ -187,82 +265,155 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.deepObsidian,
+  },
+  gradient: {
+    flex: 1,
+    paddingTop: 60,
+  },
+  progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+  },
+  progressBar: {
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.surfaceVariant,
+  },
+  progressText: {
+    color: colors.textMuted,
+    fontSize: 12,
+    marginLeft: spacing.sm,
+    fontWeight: '600',
   },
   skipButton: {
     position: 'absolute',
-    top: 48,
-    right: 24,
+    top: 60,
+    right: spacing.lg,
     zIndex: 10,
   },
   skipText: {
-    color: colors.textSecondary,
-    fontSize: 16,
+    color: colors.textMuted,
+    fontSize: 14,
     fontWeight: '600',
   },
-  slideContainer: {
-    width,
+  content: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    padding: spacing.lg,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.lg,
   },
-  slide: {
+  characterArea: {
+    height: height * 0.35,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  characterGlow: {
+    borderRadius: borderRadius.xxl,
+    padding: spacing.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: spacing.lg,
+  },
+  allCharacters: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  textCard: {
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.xl,
+    padding: spacing.xl,
+    width: '100%',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   iconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 56,
+    height: 56,
+    borderRadius: borderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.xl,
-  },
-  icon: {
-    fontSize: 64,
+    marginBottom: spacing.md,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '800',
     color: colors.softWhite,
     textAlign: 'center',
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   subtitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.royalBlue,
-    textAlign: 'center',
+    fontSize: 14,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
     marginBottom: spacing.md,
+    textAlign: 'center',
   },
   description: {
-    fontSize: 16,
+    fontSize: 14,
     color: colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 22,
+    marginBottom: spacing.md,
   },
-  pagination: {
+  featureRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginTop: spacing.sm,
+  },
+  featureBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+  },
+  featureBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  navContainer: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xxl,
+    paddingTop: spacing.lg,
+  },
+  dotsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: spacing.lg,
-    gap: spacing.sm,
+    gap: 8,
+    marginBottom: spacing.lg,
   },
   dot: {
+    width: 8,
     height: 8,
     borderRadius: 4,
-    transition: 'width 0.3s',
+    backgroundColor: colors.surfaceVariant,
   },
-  footer: {
-    backgroundColor: colors.midnightNavy,
-    padding: spacing.lg,
-    paddingBottom: spacing.xl,
-    ...shadows.md,
+  dotActive: {
+    width: 24,
+    borderRadius: 4,
   },
-  ctaButton: {
-    borderRadius: borderRadius.md,
-    paddingVertical: spacing.sm,
+  buttonRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    justifyContent: 'center',
+  },
+  prevButton: {
+    borderColor: colors.border,
+    borderRadius: borderRadius.lg,
+    flex: 1,
+  },
+  nextButton: {
+    borderRadius: borderRadius.lg,
+    flex: 1.5,
   },
 });
