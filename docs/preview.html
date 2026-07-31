@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Q-Empire Social Autopilot - Preview</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0A0A1A;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .phone-frame {
+    width: 375px;
+    height: 812px;
+    background: #0A0A1A;
+    border-radius: 40px;
+    border: 12px solid #1a1a3e;
+    box-shadow: 0 0 60px rgba(65, 105, 225, 0.3), 0 0 120px rgba(191, 0, 255, 0.1);
+    overflow: hidden;
+    position: relative;
+  }
+  .screen {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Splash Screen */
+  .splash-screen {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, #0A0A1A 0%, #0D0D2B 50%, #1a0a3e 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    z-index: 100;
+  }
+  .splash-screen.hidden {
+    opacity: 0;
+    transform: scale(1.2);
+    pointer-events: none;
+  }
+
+  /* Characters */
+  .characters-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .character-wrapper {
+    animation: float 3s ease-in-out infinite;
+  }
+  .character-wrapper:nth-child(2) { animation-delay: -0.5s; }
+  .character-wrapper:nth-child(3) { animation-delay: -1s; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  .character-svg {
+    filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.2));
+  }
+
+  /* Title */
+  .title-container {
+    position: relative;
+    overflow: hidden;
+  }
+  .title {
+    font-size: 42px;
+    font-weight: 900;
+    color: #F0F0FF;
+    letter-spacing: -1px;
+    text-shadow: 0 0 40px rgba(65, 105, 225, 0.5);
+    animation: titleSlide 0.8s ease-out forwards;
+    opacity: 0;
+  }
+  @keyframes titleSlide {
+    from { transform: translateX(-50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  .subtitle {
+    font-size: 16px;
+    font-weight: 700;
+    color: #4169E1;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: 4px;
+    animation: subtitleSlide 0.8s ease-out 0.3s forwards;
+    opacity: 0;
+  }
+  @keyframes subtitleSlide {
+    from { transform: translateX(50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  .tagline {
+    font-size: 13px;
+    color: #A0A0C0;
+    margin-top: 12px;
+    text-align: center;
+    padding: 0 32px;
+    animation: fadeIn 0.8s ease-out 0.6s forwards;
+    opacity: 0;
+  }
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+
+  .badges {
+    display: flex;
+    gap: 8px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeIn 0.8s ease-out 0.9s forwards;
+    opacity: 0;
+  }
+  .badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid;
+  }
+  .badge-blue { background: rgba(65, 105, 225, 0.15); color: #4169E1; border-color: rgba(65, 105, 225, 0.3); }
+  .badge-purple { background: rgba(191, 0, 255, 0.15); color: #BF00FF; border-color: rgba(191, 0, 255, 0.3); }
+  .badge-aqua { background: rgba(0, 255, 255, 0.15); color: #00FFFF; border-color: rgba(0, 255, 255, 0.3); }
+
+  .footer {
+    position: absolute;
+    bottom: 40px;
+    text-align: center;
+    animation: fadeIn 0.8s ease-out 1.2s forwards;
+    opacity: 0;
+  }
+  .footer-text {
+    color: #6B7280;
+    font-size: 11px;
+  }
+  .version-badge {
+    background: #1a1a3e;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    color: #6B7280;
+    display: inline-block;
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  /* Onboarding */
+  .onboarding-screen {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, #0A0A1A 0%, #0D0D2B 50%, #1a0a3e 100%);
+    display: none;
+    flex-direction: column;
+  }
+  .onboarding-screen.active {
+    display: flex;
+  }
+
+  .onb-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .onb-progress {
+    flex: 1;
+    height: 4px;
+    background: #1a1a3e;
+    border-radius: 2px;
+    margin-right: 12px;
+    overflow: hidden;
+  }
+  .onb-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .onb-skip {
+    color: #6B7280;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .onb-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 24px;
+  }
+  .onb-character-area {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .onb-character-glow {
+    border-radius: 24px;
+    padding: 16px;
+    animation: glowPulse 2s ease-in-out infinite;
+  }
+  @keyframes glowPulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(0,0,0,0.3); }
+    50% { box-shadow: 0 0 50px rgba(0,0,0,0.1); }
+  }
+
+  .onb-card {
+    background: #12122e;
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    border: 1px solid #2a2a4e;
+    text-align: center;
+  }
+  .onb-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 24px;
+  }
+  .onb-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #F0F0FF;
+    margin-bottom: 4px;
+  }
+  .onb-subtitle {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+  .onb-desc {
+    font-size: 13px;
+    color: #A0A0C0;
+    line-height: 20px;
+  }
+  .onb-features {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .onb-feature {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid;
+  }
+
+  .onb-nav {
+    padding: 20px 24px 40px;
+  }
+  .onb-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .onb-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background: #1a1a3e;
+    transition: all 0.3s ease;
+  }
+  .onb-dot.active {
+    width: 24px;
+  }
+  .onb-buttons {
+    display: flex;
+    gap: 12px;
+  }
+  .onb-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .onb-btn:hover { transform: scale(1.02); }
+  .onb-btn:active { transform: scale(0.98); }
+  .onb-btn-back {
+    background: transparent;
+    border: 1px solid #2a2a4e;
+    color: #A0A0C0;
+    flex: 0.8;
+  }
+  .onb-btn-next {
+    color: #FFF;
+    flex: 1.2;
+  }
+
+  /* Dashboard Preview */
+  .dashboard-screen {
+    position: absolute;
+    inset: 0;
+    background: #0A0A1A;
+    display: none;
+    flex-direction: column;
+  }
+  .dashboard-screen.active {
+    display: flex;
+  }
+  .dash-header {
+    padding: 50px 20px 16px;
+    background: linear-gradient(180deg, #12122e 0%, transparent 100%);
+  }
+  .dash-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .dash-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #F0F0FF;
+  }
+  .dash-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4169E1, #BF00FF);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  .dash-stats {
+    display: flex;
+    gap: 12px;
+  }
+  .dash-stat {
+    flex: 1;
+    background: #12122e;
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid #2a2a4e;
+  }
+  .dash-stat-label {
+    font-size: 11px;
+    color: #6B7280;
+    margin-bottom: 4px;
+  }
+  .dash-stat-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: #F0F0FF;
+  }
+  .dash-stat-change {
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .dash-stat-change.up { color: #10B981; }
+  .dash-stat-change.down { color: #EF4444; }
+
+  .dash-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 20px 20px;
+  }
+  .dash-section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #F0F0FF;
+    margin: 20px 0 12px;
+  }
+  .dash-platforms {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .dash-platform {
+    min-width: 80px;
+    background: #12122e;
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid #2a2a4e;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .dash-platform:hover { transform: scale(1.05); border-color: #4169E1; }
+  .dash-platform-icon { font-size: 28px; margin-bottom: 4px; }
+  .dash-platform-name { font-size: 11px; color: #A0A0C0; font-weight: 600; }
+  .dash-platform-status { font-size: 10px; color: #10B981; margin-top: 2px; }
+
+  .dash-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .dash-post {
+    background: #12122e;
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid #2a2a4e;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .dash-post-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  .dash-post-info { flex: 1; }
+  .dash-post-title { font-size: 13px; font-weight: 700; color: #F0F0FF; }
+  .dash-post-meta { font-size: 11px; color: #6B7280; margin-top: 2px; }
+  .dash-post-status {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .status-published { background: rgba(16, 185, 129, 0.15); color: #10B981; }
+  .status-scheduled { background: rgba(245, 158, 11, 0.15); color: #F59E0B; }
+  .status-queued { background: rgba(59, 130, 246, 0.15); color: #3B82F6; }
+
+  /* Tab Bar */
+  .tab-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: #12122e;
+    border-top: 1px solid #2a2a4e;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: 10px;
+  }
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 12px;
+    transition: background 0.2s;
+  }
+  .tab-item:hover { background: rgba(65, 105, 225, 0.1); }
+  .tab-item.active .tab-icon { color: #4169E1; }
+  .tab-item.active .tab-label { color: #4169E1; }
+  .tab-icon { font-size: 22px; color: #6B7280; transition: color 0.2s; }
+  .tab-label { font-size: 10px; font-weight: 600; color: #6B7280; transition: color 0.2s; }
+
+  /* Animations */
+  @keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideInLeft {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  .slide-in-right { animation: slideInRight 0.4s ease-out; }
+  .slide-in-left { animation: slideInLeft 0.4s ease-out; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #2a2a4e; border-radius: 2px; }
+
+  /* Responsive */
+  @media (max-width: 400px) {
+    .phone-frame { width: 100vw; height: 100vh; border-radius: 0; border: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+  <div class="screen">
+
+    <!-- SPLASH SCREEN -->
+    <div class="splash-screen" id="splash">
+      <div class="characters-row">
+        <div class="character-wrapper">
+          <svg width="100" height="120" viewBox="0 0 160 185" class="character-svg">
+            <defs>
+              <linearGradient id="shirtGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#4169E1"/><stop offset="100%" stop-color="#1E3A8A"/>
+              </linearGradient>
+              <linearGradient id="shortsGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#D97706"/>
+              </linearGradient>
+              <radialGradient id="sonSkin" cx="50%" cy="40%" r="50%">
+                <stop offset="0%" stop-color="#8B5A2B"/><stop offset="100%" stop-color="#5C3A1E"/>
+              </radialGradient>
+            </defs>
+            <path d="M68,140 L68,175" stroke="#5C3A1E" stroke-width="10" stroke-linecap="round"/>
+            <path d="M92,140 L92,175" stroke="#5C3A1E" stroke-width="10" stroke-linecap="round"/>
+            <ellipse cx="68" cy="178" rx="10" ry="5" fill="#EF4444"/>
+            <ellipse cx="92" cy="178" rx="10" ry="5" fill="#EF4444"/>
+            <path d="M55,120 L55,145 Q80,150 105,145 L105,120 Z" fill="url(#shortsGrad)"/>
+            <path d="M50,85 L50,125 Q80,130 110,125 L110,85 Q80,80 50,85" fill="url(#shirtGrad)"/>
+            <circle cx="80" cy="105" r="12" fill="#FFF" opacity="0.9"/>
+            <path d="M84,134 Q90,129 96,134 Q96,142 90,145 Q84,142 84,134" stroke="#4169E1" stroke-width="2.5" fill="none"/>
+            <path d="M93,143 L97,147" stroke="#4169E1" stroke-width="2" stroke-linecap="round"/>
+            <path d="M50,90 Q35,105 30,115" stroke="url(#sonSkin)" stroke-width="8" stroke-linecap="round" fill="none"/>
+            <circle cx="30" cy="115" r="5" fill="url(#sonSkin)"/>
+            <path d="M110,90 Q125,75 135,60" stroke="url(#sonSkin)" stroke-width="8" stroke-linecap="round" fill="none"/>
+            <circle cx="135" cy="60" r="5" fill="url(#sonSkin)"/>
+            <path d="M74,80 L74,68 L86,68 L86,80" fill="url(#sonSkin)"/>
+            <ellipse cx="80" cy="55" rx="20" ry="22" fill="url(#sonSkin)"/>
+            <ellipse cx="74" cy="52" rx="4" ry="3.5" fill="#FFF"/>
+            <ellipse cx="86" cy="52" rx="4" ry="3.5" fill="#FFF"/>
+            <circle cx="74.5" cy="52" r="2" fill="#4A2C17"/>
+            <circle cx="86.5" cy="52" r="2" fill="#4A2C17"/>
+            <circle cx="75" cy="51.5" r="0.8" fill="#FFF"/>
+            <circle cx="87" cy="51.5" r="0.8" fill="#FFF"/>
+            <path d="M75,62 Q80,67 85,62" stroke="#4A2C17" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <ellipse cx="72" cy="58" rx="3" ry="2" fill="#FF69B4" opacity="0.25"/>
+            <ellipse cx="88" cy="58" rx="3" ry="2" fill="#FF69B4" opacity="0.25"/>
+            <path d="M60,42 Q65,30 80,28 Q95,30 100,42 Q102,50 98,55 Q95,50 90,48 Q85,52 80,50 Q75,52 70,48 Q65,50 62,55 Q58,50 60,42" fill="#1A1A1A"/>
+            <path d="M40,40 L42,45 L47,47 L42,49 L40,54 L38,49 L33,47 L38,45 Z" fill="#FFD700" opacity="0.6">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+        </div>
+
+        <div class="character-wrapper">
+          <svg width="110" height="130" viewBox="0 0 180 200" class="character-svg">
+            <defs>
+              <linearGradient id="botBody" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1a1a3e"/><stop offset="50%" stop-color="#0d0d2b"/><stop offset="100%" stop-color="#0a0a1a"/>
+              </linearGradient>
+              <linearGradient id="botHead" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#2a2a5e"/><stop offset="100%" stop-color="#1a1a3e"/>
+              </linearGradient>
+              <linearGradient id="antennaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00FFFF"/><stop offset="100%" stop-color="#008B8B"/>
+              </linearGradient>
+              <linearGradient id="chestGlow" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#4169E1"/><stop offset="50%" stop-color="#BF00FF"/><stop offset="100%" stop-color="#00FFFF"/>
+              </linearGradient>
+            </defs>
+            <ellipse cx="90" cy="195" rx="50" ry="8" fill="#000" opacity="0.3">
+              <animate attributeName="rx" values="50;45;50" dur="3s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.3;0.2;0.3" dur="3s" repeatCount="indefinite"/>
+            </ellipse>
+            <path d="M50,100 Q45,160 55,185 Q90,195 125,185 Q135,160 130,100 Z" fill="url(#botBody)" stroke="#2a2a5e" stroke-width="2"/>
+            <path d="M55,130 Q90,135 125,130" stroke="#2a2a5e" stroke-width="1" fill="none"/>
+            <path d="M58,155 Q90,160 122,155" stroke="#2a2a5e" stroke-width="1" fill="none"/>
+            <circle cx="90" cy="140" r="18" fill="url(#chestGlow)" opacity="0.9"/>
+            <path d="M84,134 Q90,129 96,134 Q96,142 90,145 Q84,142 84,134" stroke="#FFF" stroke-width="2" fill="none"/>
+            <path d="M93,143 L97,147" stroke="#FFF" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="90" cy="140" r="22" fill="url(#chestGlow)" opacity="0.2">
+              <animate attributeName="r" values="22;28;22" dur="2s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.2;0.4;0.2" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <ellipse cx="35" cy="105" rx="18" ry="12" fill="url(#botBody)" stroke="#2a2a5e" stroke-width="2"/>
+            <ellipse cx="145" cy="105" rx="18" ry="12" fill="url(#botBody)" stroke="#2a2a5e" stroke-width="2"/>
+            <path d="M25,105 Q15,130 20,155" stroke="url(#botBody)" stroke-width="12" stroke-linecap="round" fill="none"/>
+            <path d="M155,105 Q165,130 160,155" stroke="url(#botBody)" stroke-width="12" stroke-linecap="round" fill="none"/>
+            <circle cx="20" cy="158" r="8" fill="#2a2a5e"/>
+            <circle cx="160" cy="158" r="8" fill="#2a2a5e"/>
+            <path d="M55,40 Q50,90 55,100 Q90,108 125,100 Q130,90 125,40 Q90,25 55,40" fill="url(#botHead)" stroke="#3a3a6e" stroke-width="2"/>
+            <path d="M62,48 Q58,85 62,92 Q90,98 118,92 Q122,85 118,48 Q90,42 62,48" fill="#0a0a1a" stroke="#00FFFF" stroke-width="1.5"/>
+            <circle cx="78" cy="68" r="8" fill="#FF69B4">
+              <animate attributeName="opacity" values="1;0.6;1" dur="1s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="102" cy="68" r="8" fill="#FF69B4">
+              <animate attributeName="opacity" values="1;0.6;1" dur="1s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="78" cy="66" r="3" fill="#FFF" opacity="0.8"/>
+            <circle cx="102" cy="66" r="3" fill="#FFF" opacity="0.8"/>
+            <circle cx="78" cy="68" r="14" fill="#FF69B4" opacity="0.3"/>
+            <circle cx="102" cy="68" r="14" fill="#FF69B4" opacity="0.3"/>
+            <path d="M80,80 Q90,92 100,80" stroke="#FF69B4" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M90,28 L90,12" stroke="#3a3a6e" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="90" cy="8" r="6" fill="url(#antennaGrad)">
+              <animate attributeName="r" values="6;8;6" dur="1s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="1;0.7;1" dur="1s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="90" cy="8" r="12" fill="#00FFFF" opacity="0.15">
+              <animate attributeName="r" values="12;16;12" dur="1s" repeatCount="indefinite"/>
+            </circle>
+            <rect x="48" y="55" width="6" height="20" rx="3" fill="#2a2a5e" stroke="#3a3a6e" stroke-width="1"/>
+            <rect x="126" y="55" width="6" height="20" rx="3" fill="#2a2a5e" stroke="#3a3a6e" stroke-width="1"/>
+            <circle cx="30" cy="50" r="2" fill="#00FFFF" opacity="0.6">
+              <animate attributeName="cy" values="50;30;50" dur="2.5s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.6;0;0.6" dur="2.5s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="150" cy="70" r="2" fill="#BF00FF" opacity="0.5">
+              <animate attributeName="cy" values="70;50;70" dur="3s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.5;0;0.5" dur="3s" repeatCount="indefinite"/>
+            </circle>
+          </svg>
+        </div>
+
+        <div class="character-wrapper">
+          <svg width="100" height="130" viewBox="0 0 200 240" class="character-svg">
+            <defs>
+              <linearGradient id="tailGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00CED1"/><stop offset="50%" stop-color="#20B2AA"/><stop offset="100%" stop-color="#008B8B"/>
+              </linearGradient>
+              <linearGradient id="hairGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#FFF8DC"/><stop offset="30%" stop-color="#FFD700"/><stop offset="70%" stop-color="#DAA520"/><stop offset="100%" stop-color="#B8860B"/>
+              </linearGradient>
+              <radialGradient id="skinGrad" cx="50%" cy="40%" r="50%">
+                <stop offset="0%" stop-color="#8B5A2B"/><stop offset="50%" stop-color="#6B4226"/><stop offset="100%" stop-color="#4A2C17"/>
+              </radialGradient>
+              <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#00FFFF" stop-opacity="0.3"/><stop offset="100%" stop-color="#00FFFF" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <circle cx="100" cy="120" r="90" fill="url(#glowGrad)"/>
+            <path d="M85,140 Q70,170 60,200 Q50,220 40,230 Q55,225 70,220 Q85,215 100,210 Q115,215 130,220 Q145,225 160,230 Q150,220 140,200 Q130,170 115,140 Z" fill="url(#tailGrad)" stroke="#008B8B" stroke-width="1"/>
+            <path d="M40,230 Q20,240 30,250 Q45,245 55,235" fill="#00CED1" opacity="0.8"/>
+            <path d="M160,230 Q180,240 170,250 Q155,245 145,235" fill="#00CED1" opacity="0.8"/>
+            <circle cx="80" cy="170" r="3" fill="#00FFFF" opacity="0.4"/>
+            <circle cx="95" cy="175" r="3" fill="#00FFFF" opacity="0.4"/>
+            <circle cx="110" cy="170" r="3" fill="#00FFFF" opacity="0.4"/>
+            <circle cx="75" cy="190" r="3" fill="#00FFFF" opacity="0.4"/>
+            <circle cx="90" cy="195" r="3" fill="#00FFFF" opacity="0.4"/>
+            <circle cx="105" cy="195" r="3" fill="#00FFFF" opacity="0.4"/>
+            <circle cx="120" cy="190" r="3" fill="#00FFFF" opacity="0.4"/>
+            <path d="M85,100 Q80,120 85,140 L115,140 Q120,120 115,100 Z" fill="url(#skinGrad)"/>
+            <path d="M80,95 Q100,75 120,95 Q110,105 100,100 Q90,105 80,95" fill="#FF6B9D" stroke="#FF1493" stroke-width="1"/>
+            <path d="M90,85 Q100,80 110,85" fill="#FF69B4" opacity="0.6"/>
+            <path d="M80,105 Q60,115 55,125" stroke="url(#skinGrad)" stroke-width="8" stroke-linecap="round" fill="none"/>
+            <path d="M120,105 Q140,115 145,125" stroke="url(#skinGrad)" stroke-width="8" stroke-linecap="round" fill="none"/>
+            <circle cx="55" cy="125" r="5" fill="url(#skinGrad)"/>
+            <circle cx="145" cy="125" r="5" fill="url(#skinGrad)"/>
+            <path d="M92,95 L92,80 L108,80 L108,95" fill="url(#skinGrad)"/>
+            <ellipse cx="100" cy="65" rx="22" ry="25" fill="url(#skinGrad)"/>
+            <ellipse cx="92" cy="62" rx="5" ry="4" fill="#FFF"/>
+            <ellipse cx="108" cy="62" rx="5" ry="4" fill="#FFF"/>
+            <circle cx="93" cy="62" r="2.5" fill="#4A2C17"/>
+            <circle cx="109" cy="62" r="2.5" fill="#4A2C17"/>
+            <circle cx="93.5" cy="61.5" r="1" fill="#FFF"/>
+            <circle cx="109.5" cy="61.5" r="1" fill="#FFF"/>
+            <path d="M87,58 Q85,55 83,54" stroke="#4A2C17" stroke-width="1.5" fill="none"/>
+            <path d="M90,57 Q88,53 86,52" stroke="#4A2C17" stroke-width="1.5" fill="none"/>
+            <path d="M113,58 Q115,55 117,54" stroke="#4A2C17" stroke-width="1.5" fill="none"/>
+            <path d="M110,57 Q112,53 114,52" stroke="#4A2C17" stroke-width="1.5" fill="none"/>
+            <path d="M94,72 Q100,78 106,72" stroke="#4A2C17" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <ellipse cx="88" cy="70" rx="4" ry="2.5" fill="#FF69B4" opacity="0.3"/>
+            <ellipse cx="112" cy="70" rx="4" ry="2.5" fill="#FF69B4" opacity="0.3"/>
+            <path d="M78,45 Q70,30 80,20 Q100,10 120,20 Q130,30 122,45 Q130,60 125,80 Q120,100 115,110 Q100,115 85,110 Q80,100 75,80 Q70,60 78,45" fill="url(#hairGrad)"/>
+            <path d="M75,50 Q60,70 55,90 Q50,110 58,125" stroke="url(#hairGrad)" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <path d="M125,50 Q140,70 145,90 Q150,110 142,125" stroke="url(#hairGrad)" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <path d="M80,35 Q65,50 60,75" stroke="url(#hairGrad)" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M120,35 Q135,50 140,75" stroke="url(#hairGrad)" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M85,25 Q75,40 70,60" stroke="url(#hairGrad)" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M115,25 Q125,40 130,60" stroke="url(#hairGrad)" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M85,30 Q100,22 115,30" stroke="#FFF8DC" stroke-width="3" fill="none" opacity="0.6"/>
+            <path d="M115,25 L118,20 L123,22 L120,27 L122,32 L117,30 L112,32 L114,27 L110,22 L115,25" fill="#FF69B4" stroke="#FF1493" stroke-width="0.5"/>
+            <circle cx="60" cy="50" r="3" fill="#00FFFF" opacity="0.5">
+              <animate attributeName="cy" values="50;30;50" dur="3s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.5;0.8;0.5" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="140" cy="80" r="2" fill="#00FFFF" opacity="0.4">
+              <animate attributeName="cy" values="80;60;80" dur="2.5s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="50" cy="100" r="2.5" fill="#00FFFF" opacity="0.3">
+              <animate attributeName="cy" values="100;70;100" dur="3.5s" repeatCount="indefinite"/>
+            </circle>
+          </svg>
+        </div>
+      </div>
+
+      <div class="title-container">
+        <div class="title">Q-Empire</div>
+      </div>
+      <div class="subtitle">Social Autopilot</div>
+      <div class="tagline">Posts to 25 platforms while you sleep</div>
+
+      <div class="badges">
+        <div class="badge badge-blue">⚡ AI-Powered</div>
+        <div class="badge badge-purple">🌐 25 Platforms</div>
+        <div class="badge badge-aqua">⏰ Autopilot</div>
+      </div>
+
+      <div class="footer">
+        <div class="footer-text">Q-Empire AI Automation Division</div>
+        <div class="version-badge">v1.0.0</div>
+      </div>
+    </div>
+
+    <!-- ONBOARDING SCREEN -->
+    <div class="onboarding-screen" id="onboarding">
+      <div class="onb-header">
+        <div class="onb-progress">
+          <div class="onb-progress-fill" id="progressFill" style="width: 20%; background: #4169E1;"></div>
+        </div>
+        <div class="onb-skip" onclick="skipOnboarding()">Skip</div>
+      </div>
+
+      <div class="onb-content" id="onbContent">
+        <div class="onb-character-area">
+          <div class="onb-character-glow" id="characterGlow" style="background: rgba(65, 105, 225, 0.1);">
+            <div id="onbCharacter"></div>
+          </div>
+        </div>
+
+        <div class="onb-card">
+          <div class="onb-icon" id="onbIcon" style="background: rgba(65, 105, 225, 0.2);">🚀</div>
+          <div class="onb-title" id="onbTitle">Welcome to Q-Empire</div>
+          <div class="onb-subtitle" id="onbSubtitle" style="color: #4169E1;">Your Social Media Command Center</div>
+          <div class="onb-desc" id="onbDesc">Meet your AI-powered team that handles all 25 social platforms while you focus on what matters most.</div>
+          <div class="onb-features" id="onbFeatures"></div>
+        </div>
+      </div>
+
+      <div class="onb-nav">
+        <div class="onb-dots" id="dots"></div>
+        <div class="onb-buttons">
+          <button class="onb-btn onb-btn-back" id="backBtn" onclick="prevSlide()" style="display: none;">Back</button>
+          <button class="onb-btn onb-btn-next" id="nextBtn" onclick="nextSlide()" style="background: #4169E1;">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD PREVIEW -->
+    <div class="dashboard-screen" id="dashboard">
+      <div class="dash-header">
+        <div class="dash-header-top">
+          <div class="dash-title">Dashboard</div>
+          <div class="dash-avatar">🤖</div>
+        </div>
+        <div class="dash-stats">
+          <div class="dash-stat">
+            <div class="dash-stat-label">Posts Today</div>
+            <div class="dash-stat-value">47</div>
+            <div class="dash-stat-change up">↑ 12%</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-stat-label">Platforms</div>
+            <div class="dash-stat-value">18/25</div>
+            <div class="dash-stat-change up">↑ 3</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-stat-label">Engagement</div>
+            <div class="dash-stat-value">2.4K</div>
+            <div class="dash-stat-change up">↑ 8%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-content">
+        <div class="dash-section-title">Connected Platforms</div>
+        <div class="dash-platforms">
+          <div class="dash-platform"><div class="dash-platform-icon">📘</div><div class="dash-platform-name">Facebook</div><div class="dash-platform-status">● Active</div></div>
+          <div class="dash-platform"><div class="dash-platform-icon">📸</div><div class="dash-platform-name">Instagram</div><div class="dash-platform-status">● Active</div></div>
+          <div class="dash-platform"><div class="dash-platform-icon">🐦</div><div class="dash-platform-name">X/Twitter</div><div class="dash-platform-status">● Active</div></div>
+          <div class="dash-platform"><div class="dash-platform-icon">💼</div><div class="dash-platform-name">LinkedIn</div><div class="dash-platform-status">● Active</div></div>
+          <div class="dash-platform"><div class="dash-platform-icon">🎵</div><div class="dash-platform-name">TikTok</div><div class="dash-platform-status">● Active</div></div>
+          <div class="dash-platform"><div class="dash-platform-icon">📌</div><div class="dash-platform-name">Pinterest</div><div class="dash-platform-status">● Active</div></div>
+        </div>
+
+        <div class="dash-section-title">Recent Posts</div>
+        <div class="dash-posts">
+          <div class="dash-post">
+            <div class="dash-post-icon" style="background: rgba(24, 119, 242, 0.15);">📘</div>
+            <div class="dash-post-info">
+              <div class="dash-post-title">AI just replaced my social media manager...</div>
+              <div class="dash-post-meta">Facebook • 2 hours ago • 1.2K views</div>
+            </div>
+            <div class="dash-post-status status-published">Published</div>
+          </div>
+          <div class="dash-post">
+            <div class="dash-post-icon" style="background: rgba(228, 64, 95, 0.15);">📸</div>
+            <div class="dash-post-info">
+              <div class="dash-post-title">✨ The future of marketing is here ✨</div>
+              <div class="dash-post-meta">Instagram • 4 hours ago • 3.4K views</div>
+            </div>
+            <div class="dash-post-status status-published">Published</div>
+          </div>
+          <div class="dash-post">
+            <div class="dash-post-icon" style="background: rgba(29, 161, 242, 0.15);">🐦</div>
+            <div class="dash-post-info">
+              <div class="dash-post-title">🤖 AI just replaced my social media manager...</div>
+              <div class="dash-post-meta">X/Twitter • Scheduled • Tomorrow 9:00 AM</div>
+            </div>
+            <div class="dash-post-status status-scheduled">Scheduled</div>
+          </div>
+          <div class="dash-post">
+            <div class="dash-post-icon" style="background: rgba(0, 119, 181, 0.15);">💼</div>
+            <div class="dash-post-info">
+              <div class="dash-post-title">I'm excited to share how Q-Empire is transforming...</div>
+              <div class="dash-post-meta">LinkedIn • In Queue • 12 pending</div>
+            </div>
+            <div class="dash-post-status status-queued">Queued</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item active">
+          <div class="tab-icon">⊞</div>
+          <div class="tab-label">Dashboard</div>
+        </div>
+        <div class="tab-item">
+          <div class="tab-icon">⇄</div>
+          <div class="tab-label">Platforms</div>
+        </div>
+        <div class="tab-item">
+          <div class="tab-icon">✎</div>
+          <div class="tab-label">Content</div>
+        </div>
+        <div class="tab-item">
+          <div class="tab-icon">📊</div>
+          <div class="tab-label">Analytics</div>
+        </div>
+        <div class="tab-item">
+          <div class="tab-icon">⚙</div>
+          <div class="tab-label">Settings</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SLIDES = [
+  {
+    id: 'welcome',
+    title: 'Welcome to Q-Empire',
+    subtitle: 'Your Social Media Command Center',
+    desc: 'Meet your AI-powered team that handles all 25 social platforms while you focus on what matters most.',
+    character: 'all',
+    icon: '🚀',
+    accent: '#4169E1',
+    features: []
+  },
+  {
+    id: 'ai-power',
+    title: 'AI Content Generation',
+    subtitle: 'Smart Posts, Every Time',
+    desc: 'Q-Bot analyzes your brand voice and creates unique, platform-optimized content for each network automatically.',
+    character: 'qbot',
+    icon: '✨',
+    accent: '#00FFFF',
+    features: [
+      { icon: '📘', label: 'Facebook', color: '#1877F2' },
+      { icon: '📸', label: 'Instagram', color: '#E4405F' },
+      { icon: '🐦', label: 'X/Twitter', color: '#1DA1F2' }
+    ]
+  },
+  {
+    id: 'autopilot',
+    title: 'True Autopilot Mode',
+    subtitle: 'Set It & Sleep On It',
+    desc: 'Schedule posts across all platforms. The mermaid handles the flow while your son watches the magic happen.',
+    character: 'mermaid',
+    icon: '⏰',
+    accent: '#BF00FF',
+    features: [
+      { icon: '📅', label: 'Daily', color: '#10B981' },
+      { icon: '🔄', label: 'Weekly', color: '#F59E0B' },
+      { icon: '⚙', label: 'Custom', color: '#3B82F6' }
+    ]
+  },
+  {
+    id: 'analytics',
+    title: 'Real-Time Analytics',
+    subtitle: 'Know What Works',
+    desc: 'Track engagement, reach, and performance across all 25 platforms from one beautiful dashboard.',
+    character: 'son',
+    icon: '📊',
+    accent: '#D4AF37',
+    features: [
+      { icon: '👁', label: 'Reach', color: '#4169E1' },
+      { icon: '❤', label: 'Engagement', color: '#BF00FF' },
+      { icon: '📈', label: 'Growth', color: '#00FFFF' }
+    ]
+  },
+  {
+    id: 'ready',
+    title: 'Ready to Launch?',
+    subtitle: 'Your Empire Awaits',
+    desc: 'Connect your platforms, set your schedule, and let Q-Empire handle the rest. Your social media runs itself.',
+    character: 'all',
+    icon: '✅',
+    accent: '#10B981',
+    features: []
+  }
+];
+
+let currentSlide = 0;
+
+const CHARACTERS = {
+  all: `<div style="display:flex;align-items:flex-end;justify-content:center;gap:-10px;">
+    <svg width="70" height="85" viewBox="0 0 160 185" style="margin-right:-15px;"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4169E1"/><stop offset="100%" stop-color="#1E3A8A"/></linearGradient><radialGradient id="sk" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#8B5A2B"/><stop offset="100%" stop-color="#5C3A1E"/></radialGradient></defs><path d="M68,140 L68,175" stroke="#5C3A1E" stroke-width="10" stroke-linecap="round"/><path d="M92,140 L92,175" stroke="#5C3A1E" stroke-width="10" stroke-linecap="round"/><ellipse cx="68" cy="178" rx="10" ry="5" fill="#EF4444"/><ellipse cx="92" cy="178" rx="10" ry="5" fill="#EF4444"/><path d="M55,120 L55,145 Q80,150 105,145 L105,120 Z" fill="#F59E0B"/><path d="M50,85 L50,125 Q80,130 110,125 L110,85 Q80,80 50,85" fill="url(#sg)"/><circle cx="80" cy="105" r="12" fill="#FFF" opacity="0.9"/><path d="M74,80 L74,68 L86,68 L86,80" fill="url(#sk)"/><ellipse cx="80" cy="55" rx="20" ry="22" fill="url(#sk)"/><ellipse cx="74" cy="52" rx="4" ry="3.5" fill="#FFF"/><ellipse cx="86" cy="52" rx="4" ry="3.5" fill="#FFF"/><circle cx="74.5" cy="52" r="2" fill="#4A2C17"/><circle cx="86.5" cy="52" r="2" fill="#4A2C17"/><path d="M75,62 Q80,67 85,62" stroke="#4A2C17" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M60,42 Q65,30 80,28 Q95,30 100,42 Q102,50 98,55 Q95,50 90,48 Q85,52 80,50 Q75,52 70,48 Q65,50 62,55 Q58,50 60,42" fill="#1A1A1A"/></svg>
+    <svg width="80" height="95" viewBox="0 0 180 200" style="z-index:1;"><defs><linearGradient id="bb" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a1a3e"/><stop offset="100%" stop-color="#0a0a1a"/></linearGradient><linearGradient id="bh" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2a2a5e"/><stop offset="100%" stop-color="#1a1a3e"/></linearGradient></defs><path d="M50,100 Q45,160 55,185 Q90,195 125,185 Q135,160 130,100 Z" fill="url(#bb)" stroke="#2a2a5e" stroke-width="2"/><circle cx="90" cy="140" r="18" fill="linear-gradient(135deg,#4169E1,#BF00FF,#00FFFF)" opacity="0.9"/><path d="M84,134 Q90,129 96,134 Q96,142 90,145 Q84,142 84,134" stroke="#FFF" stroke-width="2" fill="none"/><path d="M55,40 Q50,90 55,100 Q90,108 125,100 Q130,90 125,40 Q90,25 55,40" fill="url(#bh)" stroke="#3a3a6e" stroke-width="2"/><path d="M62,48 Q58,85 62,92 Q90,98 118,92 Q122,85 118,48 Q90,42 62,48" fill="#0a0a1a" stroke="#00FFFF" stroke-width="1.5"/><circle cx="78" cy="68" r="8" fill="#FF69B4"><animate attributeName="opacity" values="1;0.6;1" dur="1s" repeatCount="indefinite"/></circle><circle cx="102" cy="68" r="8" fill="#FF69B4"><animate attributeName="opacity" values="1;0.6;1" dur="1s" repeatCount="indefinite"/></circle><circle cx="78" cy="66" r="3" fill="#FFF" opacity="0.8"/><circle cx="102" cy="66" r="3" fill="#FFF" opacity="0.8"/><path d="M80,80 Q90,92 100,80" stroke="#FF69B4" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M90,28 L90,12" stroke="#3a3a6e" stroke-width="3" stroke-linecap="round"/><circle cx="90" cy="8" r="6" fill="#00FFFF"><animate attributeName="r" values="6;8;6" dur="1s" repeatCount="indefinite"/></circle></svg>
+    <svg width="70" height="90" viewBox="0 0 200 240" style="margin-left:-15px;"><defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00CED1"/><stop offset="50%" stop-color="#20B2AA"/><stop offset="100%" stop-color="#008B8B"/></linearGradient><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFF8DC"/><stop offset="30%" stop-color="#FFD700"/><stop offset="70%" stop-color="#DAA520"/><stop offset="100%" stop-color="#B8860B"/></linearGradient><radialGradient id="mg" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#8B5A2B"/><stop offset="50%" stop-color="#6B4226"/><stop offset="100%" stop-color="#4A2C17"/></radialGradient></defs><path d="M85,140 Q70,170 60,200 Q50,220 40,230 Q55,225 70,220 Q85,215 100,210 Q115,215 130,220 Q145,225 160,230 Q150,220 140,200 Q130,170 115,140 Z" fill="url(#tg)" stroke="#008B8B" stroke-width="1"/><path d="M85,100 Q80,120 85,140 L115,140 Q120,120 115,100 Z" fill="url(#mg)"/><path d="M80,95 Q100,75 120,95 Q110,105 100,100 Q90,105 80,95" fill="#FF6B9D" stroke="#FF1493" stroke-width="1"/><path d="M92,95 L92,80 L108,80 L108,95" fill="url(#mg)"/><ellipse cx="100" cy="65" rx="22" ry="25" fill="url(#mg)"/><ellipse cx="92" cy="62" rx="5" ry="4" fill="#FFF"/><ellipse cx="108" cy="62" rx="5" ry="4" fill="#FFF"/><circle cx="93" cy="62" r="2.5" fill="#4A2C17"/><circle cx="109" cy="62" r="2.5" fill="#4A2C17"/><path d="M94,72 Q100,78 106,72" stroke="#4A2C17" stroke-width="1.5" fill="none" stroke-linecap="round"/><ellipse cx="88" cy="70" rx="4" ry="2.5" fill="#FF69B4" opacity="0.3"/><ellipse cx="112" cy="70" rx="4" ry="2.5" fill="#FF69B4" opacity="0.3"/><path d="M78,45 Q70,30 80,20 Q100,10 120,20 Q130,30 122,45 Q130,60 125,80 Q120,100 115,110 Q100,115 85,110 Q80,100 75,80 Q70,60 78,45" fill="url(#hg)"/><path d="M75,50 Q60,70 55,90 Q50,110 58,125" stroke="url(#hg)" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M125,50 Q140,70 145,90 Q150,110 142,125" stroke="url(#hg)" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M85,30 Q100,22 115,30" stroke="#FFF8DC" stroke-width="3" fill="none" opacity="0.6"/></svg>
+  </div>`,
+  mermaid: `<svg width="140" height="170" viewBox="0 0 200 240"><defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00CED1"/><stop offset="50%" stop-color="#20B2AA"/><stop offset="100%" stop-color="#008B8B"/></linearGradient><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFF8DC"/><stop offset="30%" stop-color="#FFD700"/><stop offset="70%" stop-color="#DAA520"/><stop offset="100%" stop-color="#B8860B"/></linearGradient><radialGradient id="mg" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#8B5A2B"/><stop offset="50%" stop-color="#6B4226"/><stop offset="100%" stop-color="#4A2C17"/></radialGradient></defs><circle cx="100" cy="120" r="90" fill="rgba(0,255,255,0.1)"/><path d="M85,140 Q70,170 60,200 Q50,220 40,230 Q55,225 70,220 Q85,215 100,210 Q115,215 130,220 Q145,225 160,230 Q150,220 140,200 Q130,170 115,140 Z" fill="url(#tg)" stroke="#008B8B" stroke-width="1"/><circle cx="80" cy="170" r="3" fill="#00FFFF" opacity="0.4"><animate attributeName="cy" values="170;150;170" dur="2s" repeatCount="indefinite"/></circle><circle cx="95" cy="175" r="3" fill="#00FFFF" opacity="0.4"><animate attributeName="cy" values="175;155;175" dur="2.5s" repeatCount="indefinite"/></circle><circle cx="110" cy="170" r="3" fill="#00FFFF" opacity="0.4"><animate attributeName="cy" values="170;150;170" dur="2.2s" repeatCount="indefinite"/></circle><path d="M85,100 Q80,120 85,140 L115,140 Q120,120 115,100 Z" fill="url(#mg)"/><path d="M80,95 Q100,75 120,95 Q110,105 100,100 Q90,105 80,95" fill="#FF6B9D" stroke="#FF1493" stroke-width="1"/><path d="M92,95 L92,80 L108,80 L108,95" fill="url(#mg)"/><ellipse cx="100" cy="65" rx="22" ry="25" fill="url(#mg)"/><ellipse cx="92" cy="62" rx="5" ry="4" fill="#FFF"/><ellipse cx="108" cy="62" rx="5" ry="4" fill="#FFF"/><circle cx="93" cy="62" r="2.5" fill="#4A2C17"/><circle cx="109" cy="62" r="2.5" fill="#4A2C17"/><circle cx="93.5" cy="61.5" r="1" fill="#FFF"/><circle cx="109.5" cy="61.5" r="1" fill="#FFF"/><path d="M87,58 Q85,55 83,54" stroke="#4A2C17" stroke-width="1.5" fill="none"/><path d="M90,57 Q88,53 86,52" stroke="#4A2C17" stroke-width="1.5" fill="none"/><path d="M113,58 Q115,55 117,54" stroke="#4A2C17" stroke-width="1.5" fill="none"/><path d="M110,57 Q112,53 114,52" stroke="#4A2C17" stroke-width="1.5" fill="none"/><path d="M94,72 Q100,78 106,72" stroke="#4A2C17" stroke-width="1.5" fill="none" stroke-linecap="round"/><ellipse cx="88" cy="70" rx="4" ry="2.5" fill="#FF69B4" opacity="0.3"/><ellipse cx="112" cy="70" rx="4" ry="2.5" fill="#FF69B4" opacity="0.3"/><path d="M78,45 Q70,30 80,20 Q100,10 120,20 Q130,30 122,45 Q130,60 125,80 Q120,100 115,110 Q100,115 85,110 Q80,100 75,80 Q70,60 78,45" fill="url(#hg)"/><path d="M75,50 Q60,70 55,90 Q50,110 58,125" stroke="url(#hg)" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M125,50 Q140,70 145,90 Q150,110 142,125" stroke="url(#hg)" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M80,35 Q65,50 60,75" stroke="url(#hg)" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M120,35 Q135,50 140,75" stroke="url(#hg)" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M85,25 Q75,40 70,60" stroke="url(#hg)" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M115,25 Q125,40 130,60" stroke="url(#hg)" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M85,30 Q100,22 115,30" stroke="#FFF8DC" stroke-width="3" fill="none" opacity="0.6"/><path d="M115,25 L118,20 L123,22 L120,27 L122,32 L117,30 L112,32 L114,27 L110,22 L115,25" fill="#FF69B4" stroke="#FF1493" stroke-width="0.5"/><circle cx="60" cy="50" r="3" fill="#00FFFF" opacity="0.5"><animate attributeName="cy" values="50;30;50" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0.8;0.5" dur="3s" repeatCount="indefinite"/></circle><circle cx="140" cy="80" r="2" fill="#00FFFF" opacity="0.4"><animate attributeName="cy" values="80;60;80" dur="2.5s" repeatCount="indefinite"/></circle></svg>`,
+  son: `<svg width="120" height="140" viewBox="0 0 160 185"><defs><linearGradient id="sg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4169E1"/><stop offset="100%" stop-color="#1E3A8A"/></linearGradient><radialGradient id="sk2" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#8B5A2B"/><stop offset="100%" stop-color="#5C3A1E"/></radialGradient></defs><path d="M68,140 L68,175" stroke="#5C3A1E" stroke-width="10" stroke-linecap="round"/><path d="M92,140 L92,175" stroke="#5C3A1E" stroke-width="10" stroke-linecap="round"/><ellipse cx="68" cy="178" rx="10" ry="5" fill="#EF4444"/><ellipse cx="92" cy="178" rx="10" ry="5" fill="#EF4444"/><path d="M55,120 L55,145 Q80,150 105,145 L105,120 Z" fill="#F59E0B"/><path d="M50,85 L50,125 Q80,130 110,125 L110,85 Q80,80 50,85" fill="url(#sg2)"/><circle cx="80" cy="105" r="12" fill="#FFF" opacity="0.9"/><path d="M84,134 Q90,129 96,134 Q96,142 90,145 Q84,142 84,134" stroke="#4169E1" stroke-width="2.5" fill="none"/><path d="M93,143 L97,147" stroke="#4169E1" stroke-width="2" stroke-linecap="round"/><path d="M50,90 Q35,105 30,115" stroke="url(#sk2)" stroke-width="8" stroke-linecap="round" fill="none"/><circle cx="30" cy="115" r="5" fill="url(#sk2)"/><path d="M110,90 Q125,75 135,60" stroke="url(#sk2)" stroke-width="8" stroke-linecap="round" fill="none"/><circle cx="135" cy="60" r="5" fill="url(#sk2)"/><path d="M74,80 L74,68 L86,68 L86,80" fill="url(#sk2)"/><ellipse cx="80" cy="55" rx="20" ry="22" fill="url(#sk2)"/><ellipse cx="74" cy="52" rx="4" ry="3.5" fill="#FFF"/><ellipse cx="86" cy="52" rx="4" ry="3.5" fill="#FFF"/><circle cx="74.5" cy="52" r="2" fill="#4A2C17"/><circle cx="86.5" cy="52" r="2" fill="#4A2C17"/><circle cx="75" cy="51.5" r="0.8" fill="#FFF"/><circle cx="87" cy="51.5" r="0.8" fill="#FFF"/><path d="M75,62 Q80,67 85,62" stroke="#4A2C17" stroke-width="1.5" fill="none" stroke-linecap="round"/><ellipse cx="72" cy="58" rx="3" ry="2" fill="#FF69B4" opacity="0.25"/><ellipse cx="88" cy="58" rx="3" ry="2" fill="#FF69B4" opacity="0.25"/><path d="M60,42 Q65,30 80,28 Q95,30 100,42 Q102,50 98,55 Q95,50 90,48 Q85,52 80,50 Q75,52 70,48 Q65,50 62,55 Q58,50 60,42" fill="#1A1A1A"/><path d="M65,35 Q70,30 75,33" stroke="#1A1A1A" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M85,33 Q90,30 95,35" stroke="#1A1A1A" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M70,32 Q75,28 80,31" stroke="#1A1A1A" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M40,40 L42,45 L47,47 L42,49 L40,54 L38,49 L33,47 L38,45 Z" fill="#FFD700" opacity="0.6"><animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/></path></svg>`,
+  qbot: `<svg width="130" height="145" viewBox="0 0 180 200"><defs><linearGradient id="bb2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a1a3e"/><stop offset="50%" stop-color="#0d0d2b"/><stop offset="100%" stop-color="#0a0a1a"/></linearGradient><linearGradient id="bh2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2a2a5e"/><stop offset="100%" stop-color="#1a1a3e"/></linearGradient></defs><ellipse cx="90" cy="195" rx="50" ry="8" fill="#000" opacity="0.3"><animate attributeName="rx" values="50;45;50" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0.2;0.3" dur="3s" repeatCount="indefinite"/></ellipse><path d="M50,100 Q45,160 55,185 Q90,195 125,185 Q135,160 130,100 Z" fill="url(#bb2)" stroke="#2a2a5e" stroke-width="2"/><path d="M55,130 Q90,135 125,130" stroke="#2a2a5e" stroke-width="1" fill="none"/><path d="M58,155 Q90,160 122,155" stroke="#2a2a5e" stroke-width="1" fill="none"/><circle cx="90" cy="140" r="18" fill="url(#chestGlow)" opacity="0.9"/><circle cx="90" cy="140" r="22" fill="linear-gradient(135deg,#4169E1,#BF00FF,#00FFFF)" opacity="0.2"><animate attributeName="r" values="22;28;22" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.2;0.4;0.2" dur="2s" repeatCount="indefinite"/></circle><ellipse cx="35" cy="105" rx="18" ry="12" fill="url(#bb2)" stroke="#2a2a5e" stroke-width="2"/><ellipse cx="145" cy="105" rx="18" ry="12" fill="url(#bb2)" stroke="#2a2a5e" stroke-width="2"/><path d="M25,105 Q15,130 20,155" stroke="url(#bb2)" stroke-width="12" stroke-linecap="round" fill="none"/><path d="M155,105 Q165,130 160,155" stroke="url(#bb2)" stroke-width="12" stroke-linecap="round" fill="none"/><circle cx="20" cy="158" r="8" fill="#2a2a5e"/><circle cx="160" cy="158" r="8" fill="#2a2a5e"/><path d="M55,40 Q50,90 55,100 Q90,108 125,100 Q130,90 125,40 Q90,25 55,40" fill="url(#bh2)" stroke="#3a3a6e" stroke-width="2"/><path d="M62,48 Q58,85 62,92 Q90,98 118,92 Q122,85 118,48 Q90,42 62,48" fill="#0a0a1a" stroke="#00FFFF" stroke-width="1.5"/><circle cx="78" cy="68" r="8" fill="#00FF00"><animate attributeName="opacity" values="1;0.6;1" dur="1s" repeatCount="indefinite"/></circle><circle cx="102" cy="68" r="8" fill="#00FF00"><animate attributeName="opacity" values="1;0.6;1" dur="1s" repeatCount="indefinite"/></circle><circle cx="78" cy="66" r="3" fill="#FFF" opacity="0.8"/><circle cx="102" cy="66" r="3" fill="#FFF" opacity="0.8"/><circle cx="78" cy="68" r="14" fill="#00FF00" opacity="0.3"/><circle cx="102" cy="68" r="14" fill="#00FF00" opacity="0.3"/><path d="M82,82 Q90,88 98,82" stroke="#00FF00" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M90,28 L90,12" stroke="#3a3a6e" stroke-width="3" stroke-linecap="round"/><circle cx="90" cy="8" r="6" fill="#00FFFF"><animate attributeName="r" values="6;8;6" dur="1s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0.7;1" dur="1s" repeatCount="indefinite"/></circle><circle cx="90" cy="8" r="12" fill="#00FFFF" opacity="0.15"><animate attributeName="r" values="12;16;12" dur="1s" repeatCount="indefinite"/></circle><rect x="48" y="55" width="6" height="20" rx="3" fill="#2a2a5e" stroke="#3a3a6e" stroke-width="1"/><rect x="126" y="55" width="6" height="20" rx="3" fill="#2a2a5e" stroke="#3a3a6e" stroke-width="1"/><circle cx="30" cy="50" r="2" fill="#00FFFF" opacity="0.6"><animate attributeName="cy" values="50;30;50" dur="2.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0;0.6" dur="2.5s" repeatCount="indefinite"/></circle><circle cx="150" cy="70" r="2" fill="#BF00FF" opacity="0.5"><animate attributeName="cy" values="70;50;70" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="3s" repeatCount="indefinite"/></circle></svg>`
+};
+
+function renderSlide() {
+  const slide = SLIDES[currentSlide];
+  const content = document.getElementById('onbContent');
+  const direction = content.dataset.direction || 'right';
+
+  content.className = 'onb-content ' + (direction === 'right' ? 'slide-in-right' : 'slide-in-left');
+
+  document.getElementById('progressFill').style.width = ((currentSlide + 1) / SLIDES.length * 100) + '%';
+  document.getElementById('progressFill').style.background = slide.accent;
+  document.getElementById('characterGlow').style.background = slide.accent + '15';
+  document.getElementById('onbCharacter').innerHTML = CHARACTERS[slide.character];
+  document.getElementById('onbIcon').style.background = slide.accent + '20';
+  document.getElementById('onbIcon').textContent = slide.icon;
+  document.getElementById('onbTitle').textContent = slide.title;
+  document.getElementById('onbSubtitle').style.color = slide.accent;
+  document.getElementById('onbSubtitle').textContent = slide.subtitle;
+  document.getElementById('onbDesc').textContent = slide.desc;
+
+  const featuresEl = document.getElementById('onbFeatures');
+  if (slide.features.length > 0) {
+    featuresEl.innerHTML = slide.features.map(f => 
+      `<div class="onb-feature" style="background:${f.color}15;border-color:${f.color}30;color:${f.color}">${f.icon} ${f.label}</div>`
+    ).join('');
+  } else {
+    featuresEl.innerHTML = '';
+  }
+
+  document.getElementById('backBtn').style.display = currentSlide > 0 ? 'flex' : 'none';
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.style.background = slide.accent;
+  nextBtn.innerHTML = currentSlide === SLIDES.length - 1 ? '✓ Get Started' : 'Next →';
+
+  document.getElementById('dots').innerHTML = SLIDES.map((_, i) => 
+    `<div class="onb-dot ${i === currentSlide ? 'active' : ''}" style="${i === currentSlide ? 'background:' + slide.accent : ''}"></div>`
+  ).join('');
+
+  setTimeout(() => content.className = 'onb-content', 400);
+}
+
+function nextSlide() {
+  if (currentSlide < SLIDES.length - 1) {
+    document.getElementById('onbContent').dataset.direction = 'right';
+    currentSlide++;
+    renderSlide();
+  } else {
+    showDashboard();
+  }
+}
+
+function prevSlide() {
+  if (currentSlide > 0) {
+    document.getElementById('onbContent').dataset.direction = 'left';
+    currentSlide--;
+    renderSlide();
+  }
+}
+
+function skipOnboarding() {
+  showDashboard();
+}
+
+function showDashboard() {
+  document.getElementById('onboarding').classList.remove('active');
+  document.getElementById('dashboard').classList.add('active');
+}
+
+// Splash screen auto-dismiss
+setTimeout(() => {
+  document.getElementById('splash').classList.add('hidden');
+  setTimeout(() => {
+    document.getElementById('splash').style.display = 'none';
+    document.getElementById('onboarding').classList.add('active');
+    renderSlide();
+  }, 600);
+}, 3500);
+
+// Tab bar interactions
+document.querySelectorAll('.tab-item').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
