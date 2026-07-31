@@ -5,7 +5,10 @@ import { PaperProvider } from 'react-native-paper';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Toast from 'react-native-toast-message';
 import * as Notifications from 'expo-notifications';
-import * as Linking from 'expo-linking';
+import * as SplashScreen from 'expo-splash-screen';
+import { useCallback } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { ActivityIndicator } from 'react-native-paper';
 
 import { theme } from '@/constants/theme';
 import Navigation from '@/navigation';
@@ -14,6 +17,9 @@ import { useSubscriptionStore } from '@/store/subscriptionStore';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { initializeDeepLinks } from '@/utils/deepLinks';
 import { registerForPushNotifications } from '@/utils/notifications';
+
+// Keep splash screen visible while loading
+SplashScreen.preventAutoHideAsync();
 
 // Configure notifications
 Notifications.setNotificationHandler({
@@ -28,8 +34,8 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 2,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
     },
   },
 });
@@ -55,8 +61,18 @@ export default function App() {
     init();
   }, []);
 
+  const onLayoutRootView = useCallback(async () => {
+    if (appReady) {
+      await SplashScreen.hideAsync();
+    }
+  }, [appReady]);
+
   if (!appReady) {
-    return null; // Splash screen handles this
+    return (
+      <View style={styles.loadingContainer} onLayout={onLayoutRootView}>
+        <ActivityIndicator animating={true} size="large" color={theme.colors.primary} />
+      </View>
+    );
   }
 
   return (
@@ -64,12 +80,27 @@ export default function App() {
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <PaperProvider theme={theme}>
-            <Navigation />
-            <StatusBar style="light" />
-            <Toast />
+            <View style={styles.container} onLayout={onLayoutRootView}>
+              <Navigation />
+              <StatusBar style="light" />
+              <Toast />
+            </View>
           </PaperProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </ErrorBoundary>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
