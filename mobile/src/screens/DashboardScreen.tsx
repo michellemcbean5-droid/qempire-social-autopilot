@@ -1,313 +1,280 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   StyleSheet,
   ScrollView,
-  RefreshControl,
+  Animated,
+  TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import {
-  Card,
-  Title,
-  Paragraph,
-  Button,
-  Chip,
-  ProgressBar,
-  Divider,
-  List,
-  Avatar,
-  Badge,
-  Text,
-  IconButton,
-  Surface,
-} from 'react-native-paper';
+import { Text, Card, Button, Avatar, Badge, ProgressBar } from 'react-native-paper';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { LineChart, BarChart } from 'react-native-chart-kit';
 
-import { RootStackParamList } from '@/navigation';
+import { colors, spacing, borderRadius, shadows } from '@/constants/theme';
 import { useAuthStore } from '@/store/authStore';
-import { usePlatformStore } from '@/store/platformStore';
-import { useContentStore } from '@/store/contentStore';
 import { useSubscriptionStore } from '@/store/subscriptionStore';
-import { useNotificationStore } from '@/store/notificationStore';
-import { theme, colors, spacing, borderRadius, shadows } from '@/constants/theme';
-import { SUBSCRIPTION_LIMITS } from '@/constants/config';
-import SkeletonDashboard from '@/components/SkeletonDashboard';
-import UpgradePrompt from '@/components/UpgradePrompt';
 
-const screenWidth = Dimensions.get('window').width - 32;
+const { width } = Dimensions.get('window');
+
+const AnimatedCard = Animated.createAnimatedComponent(Card);
+
+const PLATFORM_DATA = [
+  { name: 'Facebook', icon: 'logo-facebook', color: '#1877F2', posts: 142, status: 'active' },
+  { name: 'Instagram', icon: 'logo-instagram', color: '#E4405F', posts: 98, status: 'active' },
+  { name: 'X / Twitter', icon: 'logo-twitter', color: '#1DA1F2', posts: 215, status: 'active' },
+  { name: 'LinkedIn', icon: 'logo-linkedin', color: '#0A66C2', posts: 67, status: 'active' },
+  { name: 'TikTok', icon: 'musical-notes', color: '#000000', posts: 45, status: 'active' },
+];
+
+const STATS_DATA = [
+  { label: 'Posts This Month', value: '2.4K', icon: 'document-text', color: colors.electricBlue, trend: '+34%' },
+  { label: 'Total Reach', value: '89K', icon: 'eye', color: colors.hotPink, trend: '+52%' },
+  { label: 'Engagements', value: '12.3K', icon: 'heart', color: colors.electricYellow, trend: '+28%' },
+  { label: 'Platforms Active', value: '18/25', icon: 'link', color: colors.neonGreen, trend: '+3 new' },
+];
 
 export default function DashboardScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation();
   const { user } = useAuthStore();
-  const { platforms, getConnectedCount } = usePlatformStore();
-  const { getStats, queue } = useContentStore();
-  const { currentTier, getLimits } = useSubscriptionStore();
-  const { unreadCount } = useNotificationStore();
-  
-  const [refreshing, setRefreshing] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [showUpgrade, setShowUpgrade] = useState(false);
+  const { tier } = useSubscriptionStore();
 
-  const stats = getStats();
-  const connectedCount = getConnectedCount();
-  const limits = getLimits();
-  const tierColor = currentTier === 'elite' ? colors.tierElite : 
-                    currentTier === 'pro' ? colors.tierPro :
-                    currentTier === 'basic' ? colors.tierBasic : colors.tierFree;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+  const scaleAnims = useRef(STATS_DATA.map(() => new Animated.Value(0.8))).current;
+  const platformAnims = useRef(PLATFORM_DATA.map(() => new Animated.Value(0))).current;
+  const autopilotPulse = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    // Simulate initial data loading
-    const timer = setTimeout(() => setLoading(false), 1500);
-    return () => clearTimeout(timer);
+    // Entrance animations
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
+    ]).start();
+
+    // Stagger stat cards
+    Animated.stagger(100,
+      scaleAnims.map(anim =>
+        Animated.spring(anim, { toValue: 1, friction: 8, tension: 40, useNativeDriver: true })
+      )
+    ).start();
+
+    // Stagger platform items
+    Animated.stagger(80,
+      platformAnims.map(anim =>
+        Animated.timing(anim, { toValue: 1, duration: 400, useNativeDriver: true })
+      )
+    ).start();
+
+    // Autopilot pulse
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(autopilotPulse, { toValue: 1.05, duration: 1000, useNativeDriver: true }),
+        Animated.timing(autopilotPulse, { toValue: 1, duration: 1000, useNativeDriver: true }),
+      ])
+    ).start();
   }, []);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setRefreshing(false);
+  const getTierColor = () => {
+    switch (tier) {
+      case 'elite': return colors.warmGold;
+      case 'pro': return colors.electricPurple;
+      case 'basic': return colors.electricBlue;
+      default: return colors.textSecondary;
+    }
   };
 
-  if (loading) {
-    return <SkeletonDashboard />;
-  }
-
-  const engagementData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [{
-      data: [45, 62, 38, 75, 55, 82, 68],
-    }],
-  };
-
-  const platformData = {
-    labels: ['FB', 'IG', 'X', 'LI', 'TT'],
-    datasets: [{
-      data: [120, 85, 95, 60, 40],
-    }],
+  const getTierIcon = () => {
+    switch (tier) {
+      case 'elite': return '👑';
+      case 'pro': return '💎';
+      case 'basic': return '⭐';
+      default: return '🆓';
+    }
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.royalBlue} />
-      }
-    >
-      {/* Header Section */}
-      <Surface style={styles.header}>
-        <View style={styles.headerContent}>
-          <View>
-            <Text style={styles.greeting}>Welcome back, {user?.name || 'User'}!</Text>
-            <Text style={styles.subGreeting}>Your social empire is running smoothly</Text>
-          </View>
-          <View style={styles.headerActions}>
-            <IconButton
-              icon="bell"
-              size={24}
-              iconColor={colors.softWhite}
-              onPress={() => navigation.navigate('Notifications')}
-            />
-            {unreadCount > 0 && (
-              <Badge style={styles.badge}>{unreadCount}</Badge>
-            )}
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <Animated.View style={[
+        styles.header,
+        { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
+      ]]}>
+        <View>
+          <Text style={styles.greeting}>Good Evening 👋</Text>
+          <View style={styles.titleRow}>
+            <Text style={styles.title}>Q-Empire </Text>
+            <LinearGradient
+              colors={[colors.electricYellow, colors.hotPink]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.gradientTextBg}
+            >
+              <Text style={styles.titleGradient}>Dashboard</Text>
+            </LinearGradient>
           </View>
         </View>
-        
-        <View style={styles.tierBadge}>
-          <Chip 
-            style={[styles.tierChip, { backgroundColor: tierColor + '20', borderColor: tierColor }]}
-            textStyle={{ color: tierColor, fontWeight: '700' }}
-          >
-            {currentTier.toUpperCase()} PLAN
-          </Chip>
-          <Text style={styles.tierPrice}>{limits.priceDisplay}</Text>
+        <View style={styles.profileSection}>
+          <Avatar.Text
+            size={44}
+            label={getTierIcon()}
+            style={{ backgroundColor: getTierColor() + '30' }}
+            labelStyle={{ fontSize: 20 }}
+          />
+          <Badge style={[styles.tierBadge, { backgroundColor: getTierColor() }]}>
+            {tier?.toUpperCase() || 'FREE'}
+          </Badge>
         </View>
-      </Surface>
+      </Animated.View>
 
-      {/* Quick Stats */}
+      {/* Autopilot Status Card */}
+      <Animated.View style={[
+        { transform: [{ scale: autopilotPulse }] },
+        { marginHorizontal: spacing.md, marginBottom: spacing.lg }
+      ]}>
+        <LinearGradient
+          colors={[colors.electricBlue + '20', colors.electricPurple + '15']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.autopilotCard}
+        >
+          <View style={styles.autopilotHeader}>
+            <View style={styles.autopilotTitleRow}>
+              <Ionicons name="rocket" size={24} color={colors.electricBlue} />
+              <Text style={styles.autopilotTitle}>Autopilot</Text>
+            </View>
+            <View style={styles.statusRow}>
+              <View style={styles.statusDot} />
+              <Text style={styles.statusText}>ACTIVE</Text>
+            </View>
+          </View>
+          <Text style={styles.autopilotInfo}>
+            Next post in <Text style={styles.highlight}>2h 14m</Text> • 18 platforms connected • <Text style={styles.highlight}>847 posts</Text> queued
+          </Text>
+          <View style={styles.progressContainer}>
+            <ProgressBar progress={0.72} color={colors.electricBlue} style={styles.progressBar} />
+            <Text style={styles.progressText}>72% of daily quota used</Text>
+          </View>
+        </LinearGradient>
+      </Animated.View>
+
+      {/* Stats Grid */}
       <View style={styles.statsGrid}>
-        <Card style={styles.statCard}>
-          <Card.Content>
-            <Text style={styles.statNumber}>{connectedCount}</Text>
-            <Text style={styles.statLabel}>Connected Platforms</Text>
-            <ProgressBar 
-              progress={connectedCount / limits.maxPlatforms} 
-              color={colors.royalBlue}
-              style={styles.progressBar}
-            />
-            <Text style={styles.statLimit}>{connectedCount}/{limits.maxPlatforms} max</Text>
-          </Card.Content>
-        </Card>
-
-        <Card style={styles.statCard}>
-          <Card.Content>
-            <Text style={styles.statNumber}>{stats.published}</Text>
-            <Text style={styles.statLabel}>Posts Published</Text>
-            <ProgressBar 
-              progress={stats.published / limits.maxPostsPerDay} 
-              color={colors.success}
-              style={styles.progressBar}
-            />
-            <Text style={styles.statLimit}>Today: {stats.published}/{limits.maxPostsPerDay}</Text>
-          </Card.Content>
-        </Card>
-
-        <Card style={styles.statCard}>
-          <Card.Content>
-            <Text style={styles.statNumber}>{queue.length}</Text>
-            <Text style={styles.statLabel}>In Queue</Text>
-            <ProgressBar 
-              progress={queue.length / 20} 
-              color={colors.warning}
-              style={styles.progressBar}
-            />
-            <Text style={styles.statLimit}>Ready to publish</Text>
-          </Card.Content>
-        </Card>
-
-        <Card style={styles.statCard}>
-          <Card.Content>
-            <Text style={styles.statNumber}>{stats.total}</Text>
-            <Text style={styles.statLabel}>Total Posts</Text>
-            <ProgressBar 
-              progress={1} 
-              color={colors.electricPurple}
-              style={styles.progressBar}
-            />
-            <Text style={styles.statLimit}>All time</Text>
-          </Card.Content>
-        </Card>
+        {STATS_DATA.map((stat, index) => (
+          <Animated.View
+            key={stat.label}
+            style={[
+              styles.statCard,
+              { transform: [{ scale: scaleAnims[index] }] }
+            ]}
+          >
+            <LinearGradient
+              colors={[stat.color + '15', stat.color + '05']}
+              style={styles.statGradient}
+            >
+              <View style={[styles.statIconContainer, { backgroundColor: stat.color + '25' }]}>
+                <Ionicons name={stat.icon as any} size={22} color={stat.color} />
+              </View>
+              <Text style={styles.statValue}>{stat.value}</Text>
+              <Text style={styles.statLabel}>{stat.label}</Text>
+              <Text style={[styles.statTrend, { color: stat.color }]}>↑ {stat.trend}</Text>
+            </LinearGradient>
+          </Animated.View>
+        ))}
       </View>
 
-      {/* Charts Section */}
-      {limits.advancedAnalytics && (
-        <>
-          <Card style={styles.chartCard}>
-            <Card.Title title="Engagement Trend" titleStyle={styles.chartTitle} />
-            <Card.Content>
-              <LineChart
-                data={engagementData}
-                width={screenWidth}
-                height={180}
-                chartConfig={{
-                  backgroundColor: colors.midnightNavy,
-                  backgroundGradientFrom: colors.midnightNavy,
-                  backgroundGradientTo: colors.deepObsidian,
-                  decimalPlaces: 0,
-                  color: () => colors.royalBlue,
-                  labelColor: () => colors.textSecondary,
-                  style: { borderRadius: borderRadius.lg },
-                  propsForDots: {
-                    r: '4',
-                    strokeWidth: '2',
-                    stroke: colors.neonAqua,
-                  },
-                }}
-                bezier
-                style={styles.chart}
-              />
-            </Card.Content>
-          </Card>
+      {/* Connected Platforms */}
+      <View style={styles.sectionHeader}>
+        <Ionicons name="share-social" size={20} color={colors.electricBlue} />
+        <Text style={styles.sectionTitle}>Connected Platforms</Text>
+      </View>
 
-          <Card style={styles.chartCard}>
-            <Card.Title title="Platform Performance" titleStyle={styles.chartTitle} />
-            <Card.Content>
-              <BarChart
-                data={platformData}
-                width={screenWidth}
-                height={180}
-                chartConfig={{
-                  backgroundColor: colors.midnightNavy,
-                  backgroundGradientFrom: colors.midnightNavy,
-                  backgroundGradientTo: colors.deepObsidian,
-                  decimalPlaces: 0,
-                  color: () => colors.electricPurple,
-                  labelColor: () => colors.textSecondary,
-                  style: { borderRadius: borderRadius.lg },
-                }}
-                style={styles.chart}
-              />
-            </Card.Content>
-          </Card>
-        </>
-      )}
+      <View style={styles.platformList}>
+        {PLATFORM_DATA.map((platform, index) => (
+          <Animated.View
+            key={platform.name}
+            style={[
+              { opacity: platformAnims[index] },
+              { transform: [{ translateX: platformAnims[index].interpolate({
+                inputRange: [0, 1],
+                outputRange: [50, 0]
+              }) }] }
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.platformItem}
+              onPress={() => navigation.navigate('PlatformDetail', { platformId: platform.name.toLowerCase() })}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.platformIcon, { backgroundColor: platform.color + '20' }]}>
+                <Ionicons
+                  name={platform.icon as any}
+                  size={24}
+                  color={platform.color}
+                />
+              </View>
+              <View style={styles.platformInfo}>
+                <Text style={styles.platformName}>{platform.name}</Text>
+                <Text style={styles.platformStatus}>● Active • {platform.posts} posts this week</Text>
+              </View>
+              <View style={styles.platformToggle}>
+                <View style={[styles.toggleActive, { backgroundColor: colors.success }]}>
+                  <View style={styles.toggleKnob} />
+                </View>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+        ))}
+      </View>
 
       {/* Quick Actions */}
-      <Card style={styles.actionsCard}>
-        <Card.Title title="Quick Actions" titleStyle={styles.chartTitle} />
-        <Card.Content>
-          <View style={styles.actionGrid}>
-            <Button
-              mode="contained"
-              icon="web"
-              onPress={() => navigation.navigate('WebsiteAnalysis')}
-              style={styles.actionButton}
-              buttonColor={colors.royalBlue}
-            >
-              Analyze Website
-            </Button>
-            <Button
-              mode="contained"
-              icon="auto-fix"
-              onPress={() => navigation.navigate('GenerateContent')}
-              style={styles.actionButton}
-              buttonColor={colors.electricPurple}
-            >
-              Generate Content
-            </Button>
-            <Button
-              mode="contained"
-              icon="rocket-launch"
-              onPress={() => navigation.navigate('AutopilotConfig')}
-              style={styles.actionButton}
-              buttonColor={colors.neonAqua}
-              textColor={colors.deepObsidian}
-            >
-              Configure Autopilot
-            </Button>
-            <Button
-              mode="outlined"
-              icon="crown"
-              onPress={() => setShowUpgrade(true)}
-              style={styles.actionButton}
-              textColor={colors.warmGold}
-            >
-              Upgrade Plan
-            </Button>
-          </View>
-        </Card.Content>
-      </Card>
+      <View style={styles.sectionHeader}>
+        <Ionicons name="flash" size={20} color={colors.electricYellow} />
+        <Text style={styles.sectionTitle}>Quick Actions</Text>
+      </View>
 
-      {/* Recent Activity */}
-      <Card style={styles.activityCard}>
-        <Card.Title title="Recent Activity" titleStyle={styles.chartTitle} />
-        <Card.Content>
-          {queue.length === 0 ? (
-            <Paragraph style={styles.emptyText}>No posts in queue. Generate content to get started!</Paragraph>
-          ) : (
-            queue.slice(0, 5).map(post => (
-              <List.Item
-                key={post.id}
-                title={post.platformName}
-                description={post.content.substring(0, 60) + '...'}
-                left={props => (
-                  <Avatar.Icon {...props} icon="file-document" size={40} style={{ backgroundColor: colors.royalBlue + '30' }} />
-                )}
-                right={props => (
-                  <Chip {...props} style={{ backgroundColor: colors.warning + '20' }} textStyle={{ color: colors.warning }}>
-                    Queued
-                  </Chip>
-                )}
-                titleStyle={styles.listTitle}
-                descriptionStyle={styles.listDescription}
-              />
-            ))
-          )}
-        </Card.Content>
-      </Card>
+      <View style={styles.quickActions}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => navigation.navigate('GenerateContent')}
+        >
+          <LinearGradient
+            colors={[colors.hotPink, colors.electricPurple]}
+            style={styles.actionGradient}
+          >
+            <Ionicons name="create" size={28} color="white" />
+            <Text style={styles.actionText}>Generate</Text>
+          </LinearGradient>
+        </TouchableOpacity>
 
-      <UpgradePrompt visible={showUpgrade} onDismiss={() => setShowUpgrade(false)} />
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => navigation.navigate('WebsiteAnalysis')}
+        >
+          <LinearGradient
+            colors={[colors.electricBlue, colors.deepObsidian]}
+            style={styles.actionGradient}
+          >
+            <Ionicons name="globe" size={28} color="white" />
+            <Text style={styles.actionText}>Analyze</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => navigation.navigate('AutopilotConfig')}
+        >
+          <LinearGradient
+            colors={[colors.electricYellow, colors.hotPink]}
+            style={styles.actionGradient}
+          >
+            <Ionicons name="time" size={28} color="white" />
+            <Text style={styles.actionText}>Schedule</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.bottomSpacer} />
     </ScrollView>
   );
 }
@@ -318,129 +285,242 @@ const styles = StyleSheet.create({
     backgroundColor: colors.deepObsidian,
   },
   header: {
-    backgroundColor: colors.midnightNavy,
-    padding: spacing.lg,
-    marginBottom: spacing.md,
-    ...shadows.md,
-  },
-  headerContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.lg,
   },
   greeting: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginBottom: 4,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  title: {
     fontSize: 24,
     fontWeight: '700',
     color: colors.softWhite,
   },
-  subGreeting: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
+  gradientTextBg: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: borderRadius.md,
   },
-  headerActions: {
-    flexDirection: 'row',
+  titleGradient: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.deepObsidian,
+  },
+  profileSection: {
     alignItems: 'center',
-  },
-  badge: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    backgroundColor: colors.error,
   },
   tierBadge: {
+    marginTop: 4,
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  autopilotCard: {
+    borderRadius: borderRadius.xl,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.electricBlue + '30',
+  },
+  autopilotHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  autopilotTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: 8,
   },
-  tierChip: {
-    borderWidth: 1,
-    borderRadius: borderRadius.full,
+  autopilotTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.softWhite,
   },
-  tierPrice: {
-    color: colors.textSecondary,
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.success,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.success,
+  },
+  autopilotInfo: {
     fontSize: 14,
+    color: colors.textSecondary,
+    lineHeight: 20,
+  },
+  highlight: {
+    color: colors.electricYellow,
+    fontWeight: '700',
+  },
+  progressContainer: {
+    marginTop: spacing.md,
+  },
+  progressBar: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.deepObsidian,
+  },
+  progressText: {
+    fontSize: 11,
+    color: colors.textSecondary,
+    marginTop: 4,
+    textAlign: 'right',
   },
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding: spacing.md,
-    gap: spacing.md,
+    paddingHorizontal: spacing.md,
+    gap: 10,
+    marginBottom: spacing.lg,
   },
   statCard: {
-    width: '47%',
-    backgroundColor: colors.midnightNavy,
-    borderRadius: borderRadius.lg,
-    ...shadows.sm,
+    width: (width - spacing.md * 2 - 10) / 2,
+    borderRadius: borderRadius.xl,
+    overflow: 'hidden',
   },
-  statNumber: {
-    fontSize: 28,
-    fontWeight: '700',
+  statGradient: {
+    padding: spacing.md,
+    borderRadius: borderRadius.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  statIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: '800',
     color: colors.softWhite,
-    marginBottom: spacing.xs,
   },
   statLabel: {
     fontSize: 12,
     color: colors.textSecondary,
-    marginBottom: spacing.sm,
+    marginTop: 2,
   },
-  progressBar: {
-    height: 4,
-    borderRadius: borderRadius.sm,
-    marginBottom: spacing.xs,
-  },
-  statLimit: {
-    fontSize: 10,
-    color: colors.textMuted,
-  },
-  chartCard: {
-    backgroundColor: colors.midnightNavy,
-    margin: spacing.md,
-    borderRadius: borderRadius.lg,
-    ...shadows.md,
-  },
-  chartTitle: {
-    color: colors.softWhite,
+  statTrend: {
+    fontSize: 11,
     fontWeight: '700',
+    marginTop: 4,
   },
-  chart: {
-    borderRadius: borderRadius.lg,
-    marginVertical: spacing.sm,
-  },
-  actionsCard: {
-    backgroundColor: colors.midnightNavy,
-    margin: spacing.md,
-    borderRadius: borderRadius.lg,
-    ...shadows.md,
-  },
-  actionGrid: {
+  sectionHeader: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    marginTop: spacing.lg,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.softWhite,
+  },
+  platformList: {
+    paddingHorizontal: spacing.md,
+    gap: 10,
+  },
+  platformItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: colors.midnightNavy,
+    borderRadius: borderRadius.xl,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  platformIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  platformInfo: {
+    flex: 1,
+  },
+  platformName: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.softWhite,
+  },
+  platformStatus: {
+    fontSize: 12,
+    color: colors.success,
+    marginTop: 2,
+  },
+  platformToggle: {
+    width: 48,
+    alignItems: 'center',
+  },
+  toggleActive: {
+    width: 48,
+    height: 26,
+    borderRadius: 13,
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+  },
+  toggleKnob: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: 'white',
+    alignSelf: 'flex-end',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  quickActions: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.md,
+    gap: 10,
+    marginBottom: spacing.lg,
   },
   actionButton: {
     flex: 1,
-    minWidth: '45%',
-    borderRadius: borderRadius.md,
+    borderRadius: borderRadius.xl,
+    overflow: 'hidden',
+    ...shadows.lg,
   },
-  activityCard: {
-    backgroundColor: colors.midnightNavy,
-    margin: spacing.md,
-    marginBottom: spacing.xl,
-    borderRadius: borderRadius.lg,
-    ...shadows.md,
+  actionGradient: {
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
   },
-  listTitle: {
-    color: colors.softWhite,
-    fontWeight: '600',
+  actionText: {
+    color: 'white',
+    fontSize: 13,
+    fontWeight: '700',
   },
-  listDescription: {
-    color: colors.textSecondary,
-  },
-  emptyText: {
-    color: colors.textSecondary,
-    textAlign: 'center',
-    padding: spacing.lg,
+  bottomSpacer: {
+    height: 100,
   },
 });
