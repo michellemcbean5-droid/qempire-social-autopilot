@@ -1,0 +1,81 @@
+# Fastlane configuration for Q-Empire Social Autopilot
+# Automates building and uploading to Google Play Store
+
+default_platform(:android)
+
+platform :android do
+  desc "Run tests"
+  lane :test do
+    gradle(task: "test")
+  end
+
+  desc "Build debug APK"
+  lane :debug do
+    gradle(
+      task: "assemble",
+      build_type: "Debug"
+    )
+  end
+
+  desc "Build release APK for testing"
+  lane :beta do
+    gradle(
+      task: "assemble",
+      build_type: "Release"
+    )
+
+    # Upload to Firebase App Distribution or internal testing
+    # firebase_app_distribution(
+    #   app: "your-firebase-app-id",
+    #   testers: "tester@example.com",
+    #   release_notes: "Beta release for testing"
+    # )
+  end
+
+  desc "Build release AAB and upload to Google Play"
+  lane :deploy do
+    # Clean build
+    gradle(task: "clean")
+
+    # Build AAB (Android App Bundle)
+    gradle(
+      task: "bundle",
+      build_type: "Release"
+    )
+
+    # Upload to Google Play Store
+    upload_to_play_store(
+      track: "production",
+      release_status: "draft",  # Change to "completed" when ready
+      aab: "../android/app/build/outputs/bundle/release/app-release.aab",
+      skip_upload_metadata: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: false
+    )
+  end
+
+  desc "Build release AAB for Google Play (manual upload)"
+  lane :build_aab do
+    gradle(task: "clean")
+    gradle(
+      task: "bundle",
+      build_type: "Release"
+    )
+
+    # The AAB will be at:
+    # android/app/build/outputs/bundle/release/app-release.aab
+
+    UI.success("✅ AAB built successfully!")
+    UI.success("📁 Location: android/app/build/outputs/bundle/release/app-release.aab")
+    UI.success("📤 Upload this file to Google Play Console")
+  end
+
+  desc "Promote beta to production"
+  lane :promote do
+    upload_to_play_store(
+      track: "beta",
+      track_promote_to: "production",
+      skip_upload_changelogs: false
+    )
+  end
+end
