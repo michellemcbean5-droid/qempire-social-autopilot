@@ -31,6 +31,12 @@
     "production": {
       "env": {
         "APP_ENV": "production"
+      },
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "ios": {
+        "simulator": false
       }
     }
   },
