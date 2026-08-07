@@ -8,12 +8,24 @@
       "distribution": "internal",
       "env": {
         "APP_ENV": "development"
+      },
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "simulator": true
       }
     },
     "preview": {
       "distribution": "internal",
       "env": {
         "APP_ENV": "preview"
+      },
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "simulator": false
       }
     },
     "production": {
