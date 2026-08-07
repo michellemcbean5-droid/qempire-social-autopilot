@@ -12,6 +12,10 @@ import { theme } from '@/constants/theme';
 import OnboardingScreen from '@/screens/OnboardingScreen';
 import LoginScreen from '@/screens/LoginScreen';
 
+// Admin Screens
+import AdminLoginScreen from '@/screens/AdminLoginScreen';
+import AdminDashboardScreen from '@/screens/AdminDashboardScreen';
+
 // Main Tab Screens
 import DashboardScreen from '@/screens/DashboardScreen';
 import PlatformsScreen from '@/screens/PlatformsScreen';
@@ -35,6 +39,8 @@ import SupportScreen from '@/screens/SupportScreen';
 export type RootStackParamList = {
   Onboarding: undefined;
   Login: undefined;
+  AdminLogin: undefined;
+  AdminDashboard: undefined;
   MainTabs: undefined;
   WebsiteAnalysis: undefined;
   PlatformDetail: { platformId: string };
@@ -114,7 +120,7 @@ function MainTabNavigator() {
 }
 
 export default function Navigation() {
-  const { isAuthenticated, hasCompletedOnboarding } = useAuthStore();
+  const { isAuthenticated, hasCompletedOnboarding, isAdmin } = useAuthStore();
 
   return (
     <NavigationContainer>
@@ -126,27 +132,95 @@ export default function Navigation() {
           contentStyle: { backgroundColor: theme.colors.background },
         }}
       >
+        {/* Admin Routes - Always Available */}
+        <Stack.Screen 
+          name="AdminLogin" 
+          component={AdminLoginScreen}
+          options={{ title: 'Admin Portal', headerShown: true }}
+        />
+        <Stack.Screen 
+          name="AdminDashboard" 
+          component={AdminDashboardScreen}
+          options={{ title: 'Admin Control', headerShown: true }}
+        />
+
         {!isAuthenticated ? (
           <>
             {!hasCompletedOnboarding && (
-              <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false }} />
+              <Stack.Screen 
+                name="Onboarding" 
+                component={OnboardingScreen}
+                options={{ headerShown: false }}
+              />
             )}
-            <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+            <Stack.Screen 
+              name="Login" 
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
           </>
         ) : (
           <>
-            <Stack.Screen name="MainTabs" component={MainTabNavigator} options={{ headerShown: false }} />
-            <Stack.Screen name="WebsiteAnalysis" component={WebsiteAnalysisScreen} options={{ title: 'Analyze Website' }} />
-            <Stack.Screen name="PlatformDetail" component={PlatformDetailScreen} options={{ title: 'Platform Details' }} />
-            <Stack.Screen name="GenerateContent" component={GenerateContentScreen} options={{ title: 'Generate Content' }} />
-            <Stack.Screen name="PostEditor" component={PostEditorScreen} options={{ title: 'Edit Post' }} />
-            <Stack.Screen name="AutopilotConfig" component={AutopilotConfigScreen} options={{ title: 'Autopilot Settings' }} />
-            <Stack.Screen name="Notifications" component={NotificationScreen} options={{ title: 'Notifications' }} />
-            <Stack.Screen name="Subscription" component={SubscriptionScreen} options={{ title: 'Subscription' }} />
-            <Stack.Screen name="PromoCode" component={PromoCodeScreen} options={{ title: 'Promo Code' }} />
-            <Stack.Screen name="Referral" component={ReferralScreen} options={{ title: 'Referrals' }} />
-            <Stack.Screen name="AIFeatures" component={AIFeaturesScreen} options={{ title: 'AI Features' }} />
-            <Stack.Screen name="Support" component={SupportScreen} options={{ title: 'Support' }} />
+            <Stack.Screen 
+              name="MainTabs" 
+              component={MainTabNavigator}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+              name="WebsiteAnalysis" 
+              component={WebsiteAnalysisScreen}
+              options={{ title: 'Analyze Website' }}
+            />
+            <Stack.Screen 
+              name="PlatformDetail" 
+              component={PlatformDetailScreen}
+              options={{ title: 'Platform Details' }}
+            />
+            <Stack.Screen 
+              name="GenerateContent" 
+              component={GenerateContentScreen}
+              options={{ title: 'Generate Content' }}
+            />
+            <Stack.Screen 
+              name="PostEditor" 
+              component={PostEditorScreen}
+              options={{ title: 'Edit Post' }}
+            />
+            <Stack.Screen 
+              name="AutopilotConfig" 
+              component={AutopilotConfigScreen}
+              options={{ title: 'Autopilot Settings' }}
+            />
+            <Stack.Screen 
+              name="Notifications" 
+              component={NotificationScreen}
+              options={{ title: 'Notifications' }}
+            />
+            <Stack.Screen 
+              name="Subscription" 
+              component={SubscriptionScreen}
+              options={{ title: 'Subscription' }}
+            />
+            <Stack.Screen 
+              name="PromoCode" 
+              component={PromoCodeScreen}
+              options={{ title: 'Promo Code' }}
+            />
+            <Stack.Screen 
+              name="Referral" 
+              component={ReferralScreen}
+              options={{ title: 'Referrals' }}
+            />
+            <Stack.Screen 
+              name="AIFeatures" 
+              component={AIFeaturesScreen}
+              options={{ title: 'AI Features' }}
+            />
+            <Stack.Screen 
+              name="Support" 
+              component={SupportScreen}
+              options={{ title: 'Support' }}
+            />
           </>
         )}
       </Stack.Navigator>
