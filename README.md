@@ -1,3 +1,62 @@
+## 🔐 Admin Portal (Post-Launch Management)
+
+Q-Empire includes a **built-in admin portal** so you can manage, test, and correct the app after it goes live on Google Play.
+
+### Accessing the Admin Portal:
+1. Open the app
+2. Go to **Settings** tab
+3. Scroll down to **"Admin Portal"**
+4. Tap to enter
+
+### Default Admin Credentials:
+- **Email:** `admin@qempire.ai`
+- **Password:** `QEmpire2024!`
+
+### What You Can Manage:
+- ✅ **System Status** — Monitor all API connections (Facebook, Instagram, X, TikTok, etc.)
+- ✅ **Content Manager** — Edit, approve, or delete AI-generated posts before they go live
+- ✅ **Platform Controls** — Enable/disable platforms, check API health
+- ✅ **User Management** — View user accounts, manage subscriptions
+- ✅ **Scheduler Control** — Pause/resume autopilot, clear queues
+- ✅ **Emergency Controls** — Toggle debug mode, enable maintenance mode, reset APIs
+- ✅ **Build Info** — View current version, environment, last deploy date
+
+### Changing the Admin Password:
+Edit `mobile/src/screens/AdminLoginScreen.tsx`:
+```typescript
+const ADMIN_CREDENTIALS = {
+  email: 'admin@qempire.ai',
+  password: 'YOUR_NEW_PASSWORD',
+};
+```
+Then rebuild and update the app.
+
+---
+
+## 🚀 Deploy to Google Play Store
+
+### Quick Start (Build AAB + Upload):
+
+```bash
+# 1. Install EAS CLI
+npm install -g eas-cli
+
+# 2. Login to Expo
+eas login
+
+# 3. Build production AAB (Android App Bundle)
+cd mobile
+eas build --platform android --profile production
+
+# 4. Download the .aab file from the link provided
+# 5. Upload to Google Play Console: https://play.google.com/console
+```
+
+### Full Deployment Guide:
+📖 See [docs/GOOGLE_PLAY_DEPLOYMENT.md](docs/GOOGLE_PLAY_DEPLOYMENT.md) for complete step-by-step instructions.
+
+---
+
 ## 🌐 Live Web Preview
 
 Test the app right now in your browser — no download needed!
